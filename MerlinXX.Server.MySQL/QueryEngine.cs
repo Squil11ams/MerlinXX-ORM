@@ -27,6 +27,7 @@ namespace MerlinXX.Server.MySQL
         }
         #endregion
 
+
         #region UTILITY FUNCTIONS
         public static MySqlConnection OpenConnection(bool AutoOpen = true)
         {

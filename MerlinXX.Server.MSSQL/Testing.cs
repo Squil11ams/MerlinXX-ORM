@@ -67,12 +67,12 @@ namespace MerlinXX.Server.MSSQL
         /// <returns>Value related to the key or null if key not found.</returns>
         private static string _FetchConfigEntry(Configuration config, string key)
         {
-            if (config.AppSettings.Settings[Key] == null)
+            if (config.AppSettings.Settings[key] == null)
             {
                 return null;
             }
 
-            return config.AppSettings.Settings[Key].Value;
+            return config.AppSettings.Settings[key].Value;
         }
 
         /// <summary>

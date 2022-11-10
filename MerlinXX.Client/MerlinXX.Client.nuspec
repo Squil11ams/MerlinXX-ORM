@@ -7,11 +7,11 @@
     <authors>Will McGee</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <!--<icon>car-engine.png</icon>-->
+    <!-- <icon>icon.png</icon> -->
     <projectUrl>https://github.com/Squil11ams/MerlinXX-ORM</projectUrl>
-    <description>Merlin ORM MySQL Backend$</description>
+    <description>$description$</description>
     <releaseNotes>Added support for config files.</releaseNotes>
     <copyright>$copyright$</copyright>
-    <tags>MerlinXX ORM MySQL</tags>
+    <tags>MerlinXX ORM Client</tags>
   </metadata>
 </package>
