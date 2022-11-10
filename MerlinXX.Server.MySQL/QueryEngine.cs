@@ -14,7 +14,14 @@ namespace MerlinXX.Server.MySQL
         #region CONFIGURATION
         private static string _connectionString;
 
-        public static void SetConfig(string connection)
+        /// <summary>
+        /// Temporarily Sets the connection string to the specified value.
+        /// </summary>
+        /// <remarks>
+        /// <b>DOES NOT ALTER THE APP.CONFIG FILE!</b>
+        /// </remarks>
+        /// <param name="connection"></param>
+        public static void SetConfigTemp(string connection)
         {
             _connectionString = connection;
         }
@@ -23,7 +30,22 @@ namespace MerlinXX.Server.MySQL
         #region UTILITY FUNCTIONS
         public static MySqlConnection OpenConnection(bool AutoOpen = true)
         {
-            if(_connectionString == "") { throw new MerlinException("QE-100", "No configuration has been set."); }
+            if(_connectionString == "") 
+            {
+                _connectionString = MerlinConfigManager.GetConnectionString();
+
+                if(_connectionString == "" || _connectionString == "Not Provided")
+                {
+                    throw new MerlinException("QE-100", "No configuration has been set.");
+                }
+            }
+
+            return OpenConnection(_connectionString, AutoOpen);
+        }
+
+        public static MySqlConnection OpenConnection(bool AutoOpen, string ConfigKey)
+        {
+            var temp = MerlinConfigManager.GetConnectionString(ConfigKey);
 
             return OpenConnection(_connectionString, AutoOpen);
         }

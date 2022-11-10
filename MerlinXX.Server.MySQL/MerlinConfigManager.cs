@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-using System.Security.Cryptography;
-
-namespace MerlinXX.Server.MSSQL
+namespace MerlinXX.Server.MySQL
 {
-    public class Testing
+    public class MerlinConfigManager
     {
         #region FIELDS
         /// <summary>
@@ -27,24 +26,44 @@ namespace MerlinXX.Server.MSSQL
         /// </summary>
         /// <param name="Key">Key to look for in the App.Config file</param>
         /// <returns>Connection String to connect to the database.</returns>
-        public static string GetConnectionString(string Key = "Merlin.MySQL.Default")
+        public static string GetConnectionString(string key = "Merlin.MySQL.Default")
         {
             var config = _OpenConfigFile();
 
-            var connStr = _GetMySQLString(config, Key);
+            var connStr = _GetMySQLString(config, key);
 
             var Entropy = _Entropy(config);
 
             var result = _decrypt(connStr, Entropy);
 
-            if(!result.Item1)
+            if (!result.Item1)
             {
                 var encrypted = _encrypt(connStr, Entropy);
-                config.AppSettings.Settings[Key].Value = encrypted;
+                config.AppSettings.Settings[key].Value = encrypted;
                 config.Save();
             }
 
             return result.Item2;
+        }
+
+        /// <summary>
+        /// Creates a new connection string entry in the App.Settings and encrypts the value.
+        /// </summary>
+        /// <remarks>The encryption we use is machine level and will not work on other machines.</remarks>
+        /// <param name="key"></param>
+        /// <param name="connectionString"></param>
+        public static void CreateConnectionString(string key, string connectionString)
+        {
+            var config = _OpenConfigFile();
+
+            var value = _GetMySQLString(config, key);
+
+            var Entropy = _Entropy(config);
+
+            value = _encrypt(connectionString, Entropy);
+
+            config.AppSettings.Settings[key].Value = value;
+            config.Save();
         }
         #endregion
 
@@ -67,12 +86,12 @@ namespace MerlinXX.Server.MSSQL
         /// <returns>Value related to the key or null if key not found.</returns>
         private static string _FetchConfigEntry(Configuration config, string key)
         {
-            if (config.AppSettings.Settings[Key] == null)
+            if (config.AppSettings.Settings[key] == null)
             {
                 return null;
             }
 
-            return config.AppSettings.Settings[Key].Value;
+            return config.AppSettings.Settings[key].Value;
         }
 
         /// <summary>
@@ -131,7 +150,7 @@ namespace MerlinXX.Server.MSSQL
             if (text == "Not Provided") { return new Tuple<bool, string>(true, text); }
 
             // STRING LENGTH IS WAY TOO SHORT TO BE A VALID CONN STRING AND THUS OMIT ENCRYPTION
-            if (text.Length < 9) { return  new Tuple<bool,string>(true, text); }
+            if (text.Length < 9) { return new Tuple<bool, string>(true, text); }
 
             // STRING IS MISSING THE TAG, ENCRYPT AND SAVE
             if (text.Substring(0, 9) != "!==B64==!") { return new Tuple<bool, string>(false, text); }
