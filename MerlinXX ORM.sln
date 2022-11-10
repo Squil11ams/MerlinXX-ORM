@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MerlinXX.Server.MySQL", "Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MerlinXX.Server.MSSQL", "MerlinXX.Server.MSSQL\MerlinXX.Server.MSSQL.csproj", "{D29ED886-6BDF-4C38-A57B-4324F19CA5F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{F2915C7C-B740-4FE7-A6B6-E2D17E8276D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D29ED886-6BDF-4C38-A57B-4324F19CA5F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D29ED886-6BDF-4C38-A57B-4324F19CA5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D29ED886-6BDF-4C38-A57B-4324F19CA5F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2915C7C-B740-4FE7-A6B6-E2D17E8276D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2915C7C-B740-4FE7-A6B6-E2D17E8276D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2915C7C-B740-4FE7-A6B6-E2D17E8276D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2915C7C-B740-4FE7-A6B6-E2D17E8276D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
