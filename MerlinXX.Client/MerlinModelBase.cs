@@ -189,14 +189,14 @@ namespace MerlinXX.Client
 
         protected T CastAutoPrefix<T>(IDataReader Row, string Key, string Prefix)
         {
+             var realKey = (Prefix == "" ? Key : Prefix + Key);
+
             if (typeof(T).IsEnum)
             {
-                var realKey = (Prefix == "" ? Key : Prefix + Key);
-
-                return (T)Enum.Parse(typeof(T), Row[Key].ToString());
+                return (T)Enum.Parse(typeof(T), Row[realKey].ToString());
             }
 
-            return Cast<T>(Row, Key, true, default(T));
+            return Cast<T>(Row, realKey, true, default(T));
         }
 
         protected T Cast<T>(IDataReader row, string Key, bool throwError = true, T defaultValue = default(T), string Prefix = "")
