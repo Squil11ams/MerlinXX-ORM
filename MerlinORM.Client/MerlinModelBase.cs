@@ -47,7 +47,7 @@ namespace MerlinORM.Client
                 }
                 catch(Exception e)
                 {
-                    throw new MerlinMissingColumnException(this.GetType().Name, columnName, e);
+                    throw new MerlinMissingColumnException("MERLIN-MAP-1028", this.GetType().Name, columnName, e);
                 }
 
                 SetProperty(prop, columnName, sourceValue);
@@ -75,7 +75,9 @@ namespace MerlinORM.Client
                 {
                     var SourceType = GetSourceType(sourceValue);
 
-                    throw new MerlinMappingException(this, prop, columnName, SourceType, ex);
+                    var msg = $"'{this.GetType().Name}' failed to map property '{prop.PropertyName}:{prop.PropertyType.Name}' from '{columnName}:{SourceType}'";
+
+                    throw new MerlinMappingException("MERLIN-MAP-1029", msg, ex);
                 }
 
                 SetPropertyFallback(prop, columnName, sourceValue, ex);

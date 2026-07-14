@@ -20,24 +20,7 @@ namespace MerlinORM.Client
 
         public Exception? OtherException { get; init; }
 
-        public override string Message
-        {
-            get
-            {
-                if(OtherException == null)
-                {
-                    return $"'{TargetObject ?? "null"}' failed to map property '{TargetProperty}' " +
-                        $"({TargetType}) from column '{SourceColumn}' " +
-                        $"({SourceType ?? "null"})";
-                }
-                return $"'{TargetObject ?? "null"}' failed to set property and failed default value. '{TargetProperty}' " +
-                    $"({TargetType}) from column '{SourceColumn}' " +
-                    $"({SourceType ?? "null"}) DefaultValue: {DefaultValue}";
-            }
-        }
-      
-
-        public MerlinMappingException(string targetProperty, string targetType, string sourceColumn, string sourceType, Exception inner) 
+        public MerlinMappingException(string ErrorCode, string targetType, string sourceColumn, string sourceType, Exception inner) 
             : base(inner)
         {
             TargetProperty = targetProperty;

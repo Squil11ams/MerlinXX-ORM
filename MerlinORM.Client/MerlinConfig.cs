@@ -88,7 +88,7 @@ namespace MerlinORM.Client
                     }
                     catch (Exception ex)
                     {
-                        throw new InvalidOperationException("Failed to decrypt the connection string. Ensure the string is decrypted on the same machine/user context it was encrypted on.", ex);
+                        throw new MerlinException("MERLIN-CFG-1026", ex);
                     }
                 }
             }
@@ -149,8 +149,9 @@ namespace MerlinORM.Client
 
                 SaveJson(rootNode, file);
 
-                throw new InvalidOperationException(
-                    $"The connection string key '{targetKey}' was missing. An empty slot has been generated in '{Path.GetFileName(file)}'. Please populate it.");
+                var msg = $"The connection string key '{targetKey}' was missing. An empty slot has been generated in '{Path.GetFileName(file)}'. Please populate it.";
+
+                throw new MerlinException("MERLIN-CFG-1027", msg);
             }
         }
 

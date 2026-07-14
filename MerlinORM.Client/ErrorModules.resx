@@ -126,4 +126,7 @@
   <data name="MAP" xml:space="preserve">
     <value>Property Mapping System</value>
   </data>
+  <data name="QEP" xml:space="preserve">
+    <value>Query Engine Pipeline</value>
+  </data>
 </root>

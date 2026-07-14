@@ -117,8 +117,120 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MAP1000" xml:space="preserve">
-    <value>Generic Message...</value>
+  <data name="MERLIN-CFG-1026" xml:space="preserve">
+    <value>Failed to decrypt the connection string. Reset the connection string to continue</value>
+    <comment>1026</comment>
+  </data>
+  <data name="MERLIN-CFG-1027" xml:space="preserve">
+    <value>Connection string needs to be set for requested Connection Key</value>
+    <comment>1027</comment>
+  </data>
+  <data name="MERLIN-MAP-1028" xml:space="preserve">
+    <value>Column not found in data set.</value>
+    <comment>1028</comment>
+  </data>
+  <data name="MERLIN-QEP-1000" xml:space="preserve">
+    <value>Failed to process data from database.</value>
     <comment>1000</comment>
+  </data>
+  <data name="MERLIN-QEP-1001" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1001</comment>
+  </data>
+  <data name="MERLIN-QEP-1002" xml:space="preserve">
+    <value>Failed to convert value to the requested type.</value>
+    <comment>1002</comment>
+  </data>
+  <data name="MERLIN-QEP-1003" xml:space="preserve">
+    <value>Failed to convert value to the requested type.</value>
+    <comment>1003</comment>
+  </data>
+  <data name="MERLIN-QEP-1004" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1004</comment>
+  </data>
+  <data name="MERLIN-QEP-1005" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1005</comment>
+  </data>
+  <data name="MERLIN-QEP-1006" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1006</comment>
+  </data>
+  <data name="MERLIN-QEP-1007" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1007</comment>
+  </data>
+  <data name="MERLIN-QEP-1008" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1008</comment>
+  </data>
+  <data name="MERLIN-QEP-1009" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1009</comment>
+  </data>
+  <data name="MERLIN-QEP-1010" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1010</comment>
+  </data>
+  <data name="MERLIN-QEP-1011" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1011</comment>
+  </data>
+  <data name="MERLIN-QEP-1012" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1012</comment>
+  </data>
+  <data name="MERLIN-QEP-1013" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1013</comment>
+  </data>
+  <data name="MERLIN-QEP-1014" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1014</comment>
+  </data>
+  <data name="MERLIN-QEP-1015" xml:space="preserve">
+    <value>Failed to process data from database.</value>
+    <comment>1015</comment>
+  </data>
+  <data name="MERLIN-QEP-1016" xml:space="preserve">
+    <value>Failed to convert value to the requested type.</value>
+    <comment>1016</comment>
+  </data>
+  <data name="MERLIN-QEP-1017" xml:space="preserve">
+    <value>Number of columns requested does not match columns received.</value>
+    <comment>1017</comment>
+  </data>
+  <data name="MERLIN-QEP-1018" xml:space="preserve">
+    <value>No rows returned, unable process 'NULL' row object.</value>
+    <comment>1018</comment>
+  </data>
+  <data name="MERLIN-QEP-1019" xml:space="preserve">
+    <value>Failed to convert value to the requested type.</value>
+    <comment>1019</comment>
+  </data>
+  <data name="MERLIN-QEP-1020" xml:space="preserve">
+    <value>More columns were requested than was received.</value>
+    <comment>1020</comment>
+  </data>
+  <data name="MERLIN-QEP-1021" xml:space="preserve">
+    <value>No rows returned, unable process 'NULL' row object.</value>
+    <comment>1021</comment>
+  </data>
+  <data name="MERLIN-QEP-1022" xml:space="preserve">
+    <value>Failed to convert value to the requested type.</value>
+    <comment>1022</comment>
+  </data>
+  <data name="MERLIN-QEP-1023" xml:space="preserve">
+    <value>Failed to convert value to the requested type.</value>
+    <comment>1023</comment>
+  </data>
+  <data name="MERLIN-QEP-1024" xml:space="preserve">
+    <value>No rows returned, unable process 'NULL' row object.</value>
+    <comment>1024</comment>
+  </data>
+  <data name="MERLIN-QEP-1025" xml:space="preserve">
+    <value>No rows returned, unable process 'NULL' row object.</value>
+    <comment>1025</comment>
   </data>
 </root>

@@ -22,7 +22,7 @@ namespace MerlinORM.Client {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ErrorCodes {
+    public class ErrorCodes {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace MerlinORM.Client {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MerlinORM.Client.ErrorCodes", typeof(ErrorCodes).Assembly);
@@ -51,7 +51,7 @@ namespace MerlinORM.Client {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,11 +61,263 @@ namespace MerlinORM.Client {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Generic Message....
+        ///   Looks up a localized string similar to Failed to decrypt the connection string. Reset the connection string to continue.
         /// </summary>
-        internal static string MAP1000 {
+        public static string MERLIN_CFG_1026 {
             get {
-                return ResourceManager.GetString("MAP1000", resourceCulture);
+                return ResourceManager.GetString("MERLIN-CFG-1026", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection string needs to be set for requested Connection Key.
+        /// </summary>
+        public static string MERLIN_CFG_1027 {
+            get {
+                return ResourceManager.GetString("MERLIN-CFG-1027", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Column not found in data set..
+        /// </summary>
+        public static string MERLIN_MAP_1028 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1028", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1000 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1000", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1001 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1001", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to convert value to the requested type..
+        /// </summary>
+        public static string MERLIN_QEP_1002 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1002", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to convert value to the requested type..
+        /// </summary>
+        public static string MERLIN_QEP_1003 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1003", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1004 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1004", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1005 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1005", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1006 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1006", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1007 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1007", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1008 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1008", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1009 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1009", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1010 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1010", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1011 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1011", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1012 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1012", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1013 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1013", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1014 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1014", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process data from database..
+        /// </summary>
+        public static string MERLIN_QEP_1015 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1015", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to convert value to the requested type..
+        /// </summary>
+        public static string MERLIN_QEP_1016 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1016", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Number of columns requested does not match columns received..
+        /// </summary>
+        public static string MERLIN_QEP_1017 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1017", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No rows returned, unable process &apos;NULL&apos; row object..
+        /// </summary>
+        public static string MERLIN_QEP_1018 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1018", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to convert value to the requested type..
+        /// </summary>
+        public static string MERLIN_QEP_1019 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1019", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More columns were requested than was received..
+        /// </summary>
+        public static string MERLIN_QEP_1020 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1020", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No rows returned, unable process &apos;NULL&apos; row object..
+        /// </summary>
+        public static string MERLIN_QEP_1021 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1021", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to convert value to the requested type..
+        /// </summary>
+        public static string MERLIN_QEP_1022 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1022", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to convert value to the requested type..
+        /// </summary>
+        public static string MERLIN_QEP_1023 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1023", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No rows returned, unable process &apos;NULL&apos; row object..
+        /// </summary>
+        public static string MERLIN_QEP_1024 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1024", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No rows returned, unable process &apos;NULL&apos; row object..
+        /// </summary>
+        public static string MERLIN_QEP_1025 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1025", resourceCulture);
             }
         }
     }

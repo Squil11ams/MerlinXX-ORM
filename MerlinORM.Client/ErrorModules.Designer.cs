@@ -86,5 +86,14 @@ namespace MerlinORM.Client {
                 return ResourceManager.GetString("MAP", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Query Engine Pipeline.
+        /// </summary>
+        public static string QEP {
+            get {
+                return ResourceManager.GetString("QEP", resourceCulture);
+            }
+        }
     }
 }

@@ -58,10 +58,10 @@ namespace MerlinORM.Server.MySQL
             return cmd;
         }
 
-        private static T Execute<T>(Func<T> action, string errorCode = "MERLIN-QES-10000")
+        private static T Execute<T>(Func<T> action, string errorCode = "MERLIN-QEP-1000")
         {
             try
-            {
+            { 
                 return action();
             }
             catch (MerlinException)
@@ -74,11 +74,11 @@ namespace MerlinORM.Server.MySQL
             }
             catch (Exception ex)
             {
-                throw new MerlinException(ex.Message, ex);
+                throw new MerlinException(errorCode, ex);
             }
         }
 
-        private static async Task<T> ExecuteAsync<T>(Func<Task<T>> action, string errorCode = "MERLIN-QES-10001")
+        private static async Task<T> ExecuteAsync<T>(Func<Task<T>> action, string errorCode = "MERLIN-QEP-10001")
         {
             try
             {
@@ -94,7 +94,7 @@ namespace MerlinORM.Server.MySQL
             }
             catch (Exception ex)
             {
-                throw new MerlinException(ex.Message, ex);
+                throw new MerlinException(errorCode, ex);
             }
         }
         #endregion
@@ -125,7 +125,7 @@ namespace MerlinORM.Server.MySQL
                 }
 
                 return data;
-            });
+            }, "MERLIN-QEP-1004");
         }
 
         public async Task<List<T>> GetListAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default) where T : IMerlinObject, new()
@@ -146,7 +146,7 @@ namespace MerlinORM.Server.MySQL
                 }
 
                 return data;
-            });
+            }, "MERLIN-QEP-1005").ConfigureAwait(false);
         }
         #endregion
 
@@ -176,7 +176,7 @@ namespace MerlinORM.Server.MySQL
                 data.SetDataObject(reader);
 
                 return data;
-            });
+            }, "MERLIN-QEP-1006");
         }
 
         public async Task<T?> GetObjectAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default) where T : IMerlinObject, new()
@@ -197,7 +197,7 @@ namespace MerlinORM.Server.MySQL
                 data.SetDataObject(reader);
 
                 return data;
-            });
+            }, "MERLIN-QEP-1007").ConfigureAwait(false);
         }
         #endregion
 
@@ -233,12 +233,12 @@ namespace MerlinORM.Server.MySQL
                     {
                         var msg = $"Unable to convert '{reader[0]?.GetType().Name}' to '{typeof(T).Name}' ";
 
-                        throw new MerlinException(msg, e);
+                        throw new MerlinException("MERLIN-QEP-1002", msg, e);
                     }
                 }
 
                 return data;
-            });
+            }, "MERLIN-QEP-1008");
         }
 
         public async Task<List<T>> GetSimpleListAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
@@ -265,12 +265,12 @@ namespace MerlinORM.Server.MySQL
                     {
                         var msg = $"Unable to convert '{reader[0]?.GetType().Name}' to '{typeof(T).Name}' ";
 
-                        throw new MerlinException(msg, e);
+                        throw new MerlinException("MERLIN-QEP-1003", msg, e);
                     }
                 }
 
                 return data;
-            }).ConfigureAwait(false);
+            }, "MERLIN-QEP-1009").ConfigureAwait(false);
         }
         #endregion
 
@@ -286,7 +286,7 @@ namespace MerlinORM.Server.MySQL
 
                 if (!rdr.Read())
                 {
-                    throw new MerlinException("QE-113 - No rows returned");
+                    throw new MerlinException("MERLIN-QEP-1025");
                 }
 
                 var converter = MerlinPropertyMetadata.CreateConverter(typeof(T));
@@ -299,9 +299,9 @@ namespace MerlinORM.Server.MySQL
                 {
                     var msg = $"Unable to convert '{rdr[0]?.GetType().Name}' to '{typeof(T).Name}' ";
 
-                    throw new MerlinException(msg, e);
+                    throw new MerlinException("MERLIN-QEP-1023", msg, e);
                 }
-            });
+            }, "MERLIN-QEP-1010");
         }
 
         public async Task<T> GetSimpleAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
@@ -314,7 +314,7 @@ namespace MerlinORM.Server.MySQL
 
                 if (!await rdr.ReadAsync(cancellationToken))
                 {
-                    throw new MerlinException("QE-113 - No rows returned");
+                    throw new MerlinException("MERLIN-QEP-1024");
                 }
 
                 var converter = MerlinPropertyMetadata.CreateConverter(typeof(T));
@@ -327,9 +327,9 @@ namespace MerlinORM.Server.MySQL
                 {
                     var msg = $"Unable to convert '{rdr[0]?.GetType().Name}' to '{typeof(T).Name}' ";
 
-                    throw new MerlinException(msg, e);
+                    throw new MerlinException("MERLIN-QEP-1022", msg, e);
                 }
-            });
+            }, "MERLIN-QEP-1011");
         }
         #endregion
 
@@ -347,13 +347,14 @@ namespace MerlinORM.Server.MySQL
 
                 if (!reader.Read())
                 {
-                    throw new MerlinException("QE-113 - No rows returned");
+                    throw new MerlinException("MERLIN-QEP-1021");
                 }
 
                 if (reader.FieldCount < columns)
                 {
-                    throw new MerlinException(
-                        $"QE-114 - Query returned {reader.FieldCount} columns, expected {columns}");
+                    var msg = $"Query returned {reader.FieldCount} columns, expected {columns}";
+
+                    throw new MerlinException("MERLIN-QEP-1020", msg);
                 }
 
                 var converter = MerlinPropertyMetadata.CreateConverter(typeof(T));
@@ -368,14 +369,14 @@ namespace MerlinORM.Server.MySQL
                     }
                     catch (Exception e)
                     {
-                        throw new MerlinException(
-                            $"Unable to convert Column({i}) '{value?.GetType().Name ?? "NULL"}' to '{typeof(T).Name}'.",
-                            e);
+                        var msg = $"Unable to convert Column({i}) '{value?.GetType().Name ?? "NULL"}' to '{typeof(T).Name}'.";
+
+                        throw new MerlinException("MERLIN-QEP-1019", msg, e);
                     }
                 }
 
                 return data;
-            });
+            }, "MERLIN-QEP-1012");
         }
 
         public async Task<T[]> GetSimpleArrayAsync<T>(IMerlinProvider queryObj, int columns, CancellationToken cancellationToken = default)
@@ -390,13 +391,14 @@ namespace MerlinORM.Server.MySQL
 
                 if (!await rdr.ReadAsync(cancellationToken))
                 {
-                    throw new MerlinException("QE-113 - No rows returned");
+                    throw new MerlinException("MERLIN-QEP-1018");
                 }
 
                 if (rdr.FieldCount < columns)
                 {
-                    throw new MerlinException(
-                        $"QE-114 - Query returned {rdr.FieldCount} columns, expected {columns}");
+                    var msg = $"Query returned {rdr.FieldCount} columns, expected {columns}";
+
+                    throw new MerlinException("MERLIN-QEP-1017", msg);
                 }
 
                 var converter = MerlinPropertyMetadata.CreateConverter(typeof(T));
@@ -411,14 +413,14 @@ namespace MerlinORM.Server.MySQL
                     }
                     catch (Exception e)
                     {
-                        throw new MerlinException(
-                            $"Unable to convert Column({i}) '{value?.GetType().Name ?? "NULL"}' to '{typeof(T).Name}'.",
-                            e);
+                        var msg = $"Unable to convert Column({i}) '{value?.GetType().Name ?? "NULL"}' to '{typeof(T).Name}'.";
+
+                        throw new MerlinException("MERLIN-QEP-1016", msg, e);
                     }
                 }
 
                 return data;
-            });
+            }, "MERLIN-QEP-1013");
         }
         #endregion
 
@@ -432,7 +434,7 @@ namespace MerlinORM.Server.MySQL
                 using var cmd = CreateCommand(queryObj, conn);
 
                 return cmd.ExecuteNonQuery();
-            },"MERLIN-QES-10002");
+            }, "MERLIN-QEP-1014");
         }
 
         public async Task<int> ExecuteNonQueryAsync(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
@@ -443,7 +445,7 @@ namespace MerlinORM.Server.MySQL
                 await using var cmd = CreateCommand(queryObj, conn);
 
                 return await cmd.ExecuteNonQueryAsync(cancellationToken);
-            }, "MERLIN-QES-10003");
+            }, "MERLIN-QEP-1015");
         }
         #endregion
     }
