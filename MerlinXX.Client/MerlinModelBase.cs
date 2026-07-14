@@ -23,6 +23,7 @@ namespace MerlinXX.Client
             // LOOP THROUGH EACH PROPERTY IN INHERITIED CLASS
             foreach (PropertyInfo prop in this.GetType().GetProperties())
             {
+                
                 // GET LIST OF ALL ATTRIBUTES TAGGED TO PROPERTY
                 var attributes = prop.GetCustomAttributes(false);
 
