@@ -16,10 +16,26 @@ namespace MerlinORM.Client
 
         public string? SourceType {  get; init; }
 
-        public override string Message =>
-      $"'{TargetObject ?? "null"}' failed to map property '{TargetProperty}' " +
-      $"({TargetType}) from column '{SourceColumn}' " +
-      $"({SourceType ?? "null"})";
+        public string? DefaultValue { get; init; }
+
+        public Exception? OtherException { get; init; }
+
+        public override string Message
+        {
+            get
+            {
+                if(OtherException == null)
+                {
+                    return $"'{TargetObject ?? "null"}' failed to map property '{TargetProperty}' " +
+                        $"({TargetType}) from column '{SourceColumn}' " +
+                        $"({SourceType ?? "null"})";
+                }
+                return $"'{TargetObject ?? "null"}' failed to set property and failed default value. '{TargetProperty}' " +
+                    $"({TargetType}) from column '{SourceColumn}' " +
+                    $"({SourceType ?? "null"}) DefaultValue: {DefaultValue}";
+            }
+        }
+      
 
         public MerlinMappingException(string targetProperty, string targetType, string sourceColumn, string sourceType, Exception inner) 
             : base(inner)
@@ -55,6 +71,16 @@ namespace MerlinORM.Client
             SourceColumn = sourceColumn;
             TargetType = meta.PropertyType.Name;
             SourceType = sourceValue?.GetType().Name;
+        }
+
+        public MerlinMappingException(object targetObject, MerlinPropertyMetadata meta, string sourceColumn, object sourceValue, Exception inner, string defaultValue, Exception otherException) : base(inner)
+        {
+            TargetProperty = meta.PropertyName;
+            SourceColumn = sourceColumn;
+            TargetType = meta.PropertyType.Name;
+            SourceType = sourceValue?.GetType().Name;
+            DefaultValue = defaultValue;
+            OtherException = otherException;
         }
     }
 }

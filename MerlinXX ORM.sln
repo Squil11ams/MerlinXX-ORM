@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.7.11925.98 stable
+VisualStudioVersion = 18.7.11925.98
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MerlinXX.Client", "MerlinXX.Client\MerlinXX.Client.csproj", "{9CF84250-76BA-4025-BE0D-1C641C16D99F}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Old Platform", "Old Platform", "{E04F4ABB-7C45-463E-8CF3-FE408AE65146}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "New Platform", "New Platform", "{C89C9121-4661-48FF-8129-59CC7A705A25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{0604FB70-30F7-4644-BC79-116BBD5F1D1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{D20E8429-CC14-45DD-ADF7-2B4092621C66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D20E8429-CC14-45DD-ADF7-2B4092621C66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D20E8429-CC14-45DD-ADF7-2B4092621C66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0604FB70-30F7-4644-BC79-116BBD5F1D1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0604FB70-30F7-4644-BC79-116BBD5F1D1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0604FB70-30F7-4644-BC79-116BBD5F1D1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0604FB70-30F7-4644-BC79-116BBD5F1D1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{D29ED886-6BDF-4C38-A57B-4324F19CA5F6} = {E04F4ABB-7C45-463E-8CF3-FE408AE65146}
 		{B3DC02E4-3D3C-42FE-8964-1AF491EA6360} = {C89C9121-4661-48FF-8129-59CC7A705A25}
 		{D20E8429-CC14-45DD-ADF7-2B4092621C66} = {C89C9121-4661-48FF-8129-59CC7A705A25}
+		{0604FB70-30F7-4644-BC79-116BBD5F1D1F} = {C89C9121-4661-48FF-8129-59CC7A705A25}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {19374CA7-0C64-42DB-8FE1-720550AF5161}

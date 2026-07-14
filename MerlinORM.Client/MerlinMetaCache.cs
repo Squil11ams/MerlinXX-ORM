@@ -43,14 +43,14 @@ namespace MerlinORM.Client
             var autoPop = prop.GetCustomAttribute<AutoPopSettings>();
             var merlinObject = prop.GetCustomAttribute<MerlinObject>();
 
-            return new MerlinPropertyMetadata(prop.PropertyType)
+            return new MerlinPropertyMetadata(prop.PropertyType, (merlinObject != null))
             {
                 PropertyName = prop.Name,
                 ColumnName = autoPop?.key ?? prop.Name,
                 PropertyType = prop.PropertyType,
 
                 ThrowError = autoPop?.throwError ?? true,
-                DefaultValue = autoPop?.defaultValueObj,
+                DefaultValue = autoPop?.defaultValue,
 
                 IsMerlinObject = merlinObject != null,
                 MerlinPrefix = merlinObject?.prefix ?? "",

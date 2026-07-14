@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MerlinORM.Client
 {
@@ -18,102 +20,114 @@ namespace MerlinORM.Client
         public MerlinModelBase() { }
         #endregion
 
+        /// <summary>
+        /// Attempts to populate model with data from database.
+        /// </summary>
+        /// <param name="data">Database row of data to fill model with.</param>
+        /// <param name="prefix">Prefix used to alter column name to match dataset.</param>
+        /// <exception cref="MerlinMissingColumnException"></exception>
+        /// <exception cref="MerlinMappingException"></exception>
+        /// <exception cref="MerlinException"></exception>
         public virtual void SetDataObject(IDataReader data, string prefix = "")
         {
             foreach (var prop in Metadata.MappedProperties.Values)
             {
-
                 if (prop.IsMerlinObject)
                 {
-                    var instance = prop.MerlinFactory();
-
-                    if (instance is IMerlinObject)
-                    {
-                        var temp = (IMerlinObject)instance;
-                        temp.SetDataObject(data, prop.MerlinPrefix);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(
-                            $"Property '{prop.PropertyName}' is marked as a Merlin object but does not implement IMerlinObject.");
-                    }
-
-                    prop.Setter(this, instance);
-                }
-                else
-                {
-                    var columnName = prefix + prop.ColumnName;
-                    object? value = data[columnName];
-
-                    try
-                    {
-                        var val = prop.Converter(value);
-
-                        prop.Setter(this, val);
-                    }
-                    catch(Exception ex)
-                    {
-                        if(prop.ThrowError)
-                        {
-                            throw new MerlinMappingException(this, prop, "Col", "Col:Type", ex);
-                        }
-
-                        try
-                        {
-                            prop.Setter(this, prop.DefaultValue);
-                        }
-                        catch (Exception BackupFailedEx)
-                        {
-                            StringBuilder sb = new StringBuilder();
-                            sb.AppendLine("Failed to set original property, and fallback default also failed!");
-                            sb.AppendLine($"Error setting property '{prop.PropertyName}' from column '{prefix + prop.ColumnName}'");
-                            sb.AppendLine(BackupFailedEx.Message);
-                            throw new Exception(sb.ToString(), ex);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        public virtual void SetDataObject2(IDataReader data, string prefix = "")
-        {
-            foreach (var prop in Metadata.MappedProperties.Values)
-            {
-                if (prop.IsMerlinObject)
-                {
-                    var instance = prop.MerlinFactory!();
-
-                    if (instance is not IMerlinObject child)
-                        throw new MerlinMappingException(
-                            $"{prop.PropertyName} is not a valid Merlin object.");
-
-                    child.SetDataObject(data, prop.MerlinPrefix);
-
-                    prop.Setter(this, instance);
+                    PopulateNestedObject(data, prop);
                     continue;
                 }
 
                 var columnName = prefix + prop.ColumnName;
+                object? sourceValue;
 
                 try
                 {
-                    object? value = data[columnName];
-
-                    value = prop.Converter(value);
-
-                    prop.Setter(this, value);
+                    sourceValue = data[columnName];
                 }
-                catch (Exception ex)
+                catch(Exception e)
                 {
-                    if (prop.ThrowError)
-                    {
-                        throw new MerlinMappingException( this, prop,"Col", "Col:Type", ex);
-                    }
-
-                    prop.Setter(this, prop.DefaultValue);
+                    throw new MerlinMissingColumnException(this.GetType().Name, columnName, e);
                 }
+
+                SetProperty(prop, columnName, sourceValue);
             }
+        }
+
+        /// <summary>
+        /// Set the individual property, attempts to use Meta's Converter, to matchup types.
+        /// </summary>
+        /// <param name="data">Data row from database.</param>
+        /// <param name="prop">Property in model being set.</param>
+        /// <param name="columnName">Column name used to pull data.</param>
+        /// <param name="sourceValue">Actual value from data row.</param>
+        /// <exception cref="MerlinMappingException"></exception>
+        private void SetProperty(MerlinPropertyMetadata prop, string columnName, object? sourceValue)
+        {
+            try
+            {
+                var val = prop.Converter(sourceValue);
+                prop.Setter(this, val);
+            }
+            catch (Exception ex)
+            {
+                if (prop.ThrowError)
+                {
+                    var SourceType = sourceValue == null ? "NULL" : sourceValue.GetType().Name;
+
+                    throw new MerlinMappingException(this, prop, columnName, SourceType, ex);
+                }
+
+                SetPropertyFallback(prop, columnName, sourceValue, ex);
+            }
+        }
+
+        /// <summary>
+        /// Incase SetProperty fails, and model is set to not throw exception. Attempt to set to DefaultValue. Throws an exception if this fails.
+        /// </summary>
+        /// <param name="data">Data row from database.</param>
+        /// <param name="prop">Property in model being set.</param>
+        /// <param name="columnName">Column name used to pull data.</param>
+        /// <param name="sourceValue">Actual value from data row.</param>
+        /// <exception cref="MerlinMappingException"></exception>
+        private void SetPropertyFallback(MerlinPropertyMetadata prop, string columnName, object? sourceValue, Exception originalException)
+        {
+            try
+            {
+                var fallback = prop.Converter(prop.DefaultValue);
+                prop.Setter(this, fallback);
+            }
+            catch (Exception lastChanceEx)
+            {
+                var SourceType = sourceValue == null ? "NULL" : sourceValue.GetType().Name;
+
+                throw new MerlinMappingException(this, prop, columnName, SourceType, lastChanceEx, prop.DefaultValue, originalException);
+            }
+        }
+
+        /// <summary>
+        /// Attempts to load property as a nested MerlinObject
+        /// </summary>
+        /// <param name="data">Data row from database.</param>
+        /// <param name="prop">Property in model being set.</param>
+        /// <exception cref="MerlinException"></exception>
+        private void PopulateNestedObject(IDataReader data, MerlinPropertyMetadata prop)
+        {
+            if (prop.MerlinFactory == null)
+            {
+                throw new MerlinException(
+                    $"No factory defined for Merlin object '{prop.PropertyName}'.");
+            }
+
+            var instance = prop.MerlinFactory();
+
+            if (instance is not IMerlinObject child)
+                throw new MerlinException(
+                    $"{prop.PropertyName} is not a valid Merlin object.");
+
+            child.SetDataObject(data, prop.MerlinPrefix);
+
+            prop.Setter(this, instance);
         }
     }
 }

@@ -21,17 +21,23 @@ namespace MerlinORM.Client
 
         public Func<object>? MerlinFactory { get; init; }
 
-        public object? DefaultValue { get; init; }
+        public string? DefaultValue { get; init; }
 
         public Action<object, object?>? Setter { get; init; }
 
         public Func<object?, object?> Converter { get; init; } = default!;
 
 
-        public MerlinPropertyMetadata(Type propType)
+        public MerlinPropertyMetadata(Type propType, bool isMerlin = false)
         {
-            MerlinFactory = CreateFactory(propType);
-            Converter = CreateConverter(propType);
+            if (isMerlin)
+            {
+                MerlinFactory = CreateFactory(propType);
+            }
+            else
+            {
+                Converter = CreateConverter(propType);
+            }
         }
 
         private static Func<object> CreateFactory(Type type)

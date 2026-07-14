@@ -10,16 +10,16 @@ namespace MerlinORM.Client
         private string _key;
         private bool _throwError;
         private Type _type;
-        private string _defaultValue;
+        private string? _defaultValue;
 
         public string key { get { return _key; } }
         public bool throwError { get { return _throwError; } }
 
-        public dynamic defaultValue
+        public string defaultValue
         {
             get
             {
-                return Convert.ChangeType(_defaultValue, _type);
+                return _defaultValue ?? "";
             }
         }
 
