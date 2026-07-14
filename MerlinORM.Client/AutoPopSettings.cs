@@ -9,7 +9,6 @@ namespace MerlinORM.Client
     {
         private string _key;
         private bool _throwError;
-        private Type _type;
         private string? _defaultValue;
 
         public string key { get { return _key; } }
@@ -23,22 +22,16 @@ namespace MerlinORM.Client
             }
         }
 
-        public Type type { get { return _type; } }
         public object defaultValueObj { get { return _key; } }
 
 
-        public AutoPopSettings(string key, bool throwError, Type type, string defaultValue)
+        public AutoPopSettings(string key, string? defaultValueSet = null)
         {
             _key = key;
-            _throwError = throwError;
-            _type = type;
-            _defaultValue = defaultValue;
+            _defaultValue = defaultValueSet;
+            _throwError = defaultValueSet == null;
         }
 
-        public AutoPopSettings(string key)
-        {
-            _key = key;
-            _throwError = true;
-        }
+        
     }
 }

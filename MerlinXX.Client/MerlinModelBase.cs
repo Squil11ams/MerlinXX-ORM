@@ -18,7 +18,7 @@ namespace MerlinXX.Client
         #endregion
 
         #region MAIN FUNCTION - OVERRIDABLE
-        public virtual void SetDataObject(IDataReader data, int flag = 0, string prefix = "")
+        public virtual void SetDataObject(IDataReader data, string prefix = "")
         {
             // LOOP THROUGH EACH PROPERTY IN INHERITIED CLASS
             foreach (PropertyInfo prop in this.GetType().GetProperties())
@@ -32,11 +32,11 @@ namespace MerlinXX.Client
                 if (attributes.Length > 0)
                 {
                     // FOUND ATTRIBUTES - 
-                    _ProcessAttributes(prop, attributes, data, flag, prefix);
+                    _ProcessAttributes(prop, attributes, data, 0, prefix);
                 }
                 else
                 {
-                    PopulateProperty(prop, data, flag, prefix);
+                    PopulateProperty(prop, data, 0, prefix);
                 }
             }
         }
@@ -157,7 +157,7 @@ namespace MerlinXX.Client
                 if (instance is IMerlinObject)
                 {
                     var temp = (IMerlinObject)instance;
-                    temp.SetDataObject(data, attr.flag, attr.prefix);
+                    temp.SetDataObject(data, attr.prefix);
                 }
 
                 prop.SetValue(this, instance);

@@ -73,13 +73,23 @@ namespace MerlinORM.Client
             {
                 if (prop.ThrowError)
                 {
-                    var SourceType = sourceValue == null ? "NULL" : sourceValue.GetType().Name;
+                    var SourceType = GetSourceType(sourceValue);
 
                     throw new MerlinMappingException(this, prop, columnName, SourceType, ex);
                 }
 
                 SetPropertyFallback(prop, columnName, sourceValue, ex);
             }
+        }
+
+        private static string GetSourceType(object? value)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return "NULL";
+            }
+
+            return value.GetType().Name;
         }
 
         /// <summary>
@@ -99,7 +109,7 @@ namespace MerlinORM.Client
             }
             catch (Exception lastChanceEx)
             {
-                var SourceType = sourceValue == null ? "NULL" : sourceValue.GetType().Name;
+                var SourceType = GetSourceType(sourceValue);
 
                 throw new MerlinMappingException(this, prop, columnName, SourceType, lastChanceEx, prop.DefaultValue, originalException);
             }

@@ -50,7 +50,7 @@ namespace MerlinORM.Client
         }
 
         
-        private static Func<object?, object?> CreateConverter(Type targetType)
+        public static Func<object?, object?> CreateConverter(Type targetType)
         {
             bool isNullable = Nullable.GetUnderlyingType(targetType) != null;
 

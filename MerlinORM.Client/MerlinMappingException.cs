@@ -65,20 +65,22 @@ namespace MerlinORM.Client
             SourceType = sourceType;
         }
 
-        public MerlinMappingException(object targetObject, MerlinPropertyMetadata meta, string sourceColumn, object sourceValue, Exception inner) : base(inner)
+        public MerlinMappingException(object targetObject, MerlinPropertyMetadata meta, string sourceColumn, string sourceValue, Exception inner) : base(inner)
         {
+            TargetObject = targetObject.GetType().Name;
             TargetProperty = meta.PropertyName;
             SourceColumn = sourceColumn;
             TargetType = meta.PropertyType.Name;
-            SourceType = sourceValue?.GetType().Name;
+            SourceType = sourceValue;
         }
 
-        public MerlinMappingException(object targetObject, MerlinPropertyMetadata meta, string sourceColumn, object sourceValue, Exception inner, string defaultValue, Exception otherException) : base(inner)
+        public MerlinMappingException(object targetObject, MerlinPropertyMetadata meta, string sourceColumn, string sourceValue, Exception inner, string defaultValue, Exception otherException) : base(inner)
         {
+            TargetObject = targetObject.GetType().Name;
             TargetProperty = meta.PropertyName;
             SourceColumn = sourceColumn;
             TargetType = meta.PropertyType.Name;
-            SourceType = sourceValue?.GetType().Name;
+            SourceType = sourceValue;
             DefaultValue = defaultValue;
             OtherException = otherException;
         }

@@ -6,16 +6,23 @@ namespace Testing
     {
         static void Main(string[] args)
         {
-            var q = new GenericQuery("SELECT * FROM volt_db.assets;");
-
-            var qe = new QueryEngine("Default");
-
-            var data = qe.GetList<Asset>(q);
-
-
-            foreach (var a in data)
+            try
             {
-                Console.WriteLine($"{a.asset_id} - {a.asset_name} -- {a.asset_uuid}");
+                var q = new GenericQuery("SELECT * FROM volt_db.tester;");
+
+                var qe = new QueryEngine("Default");
+
+                var data = qe.GetList<TestModelB>(q);
+
+
+                foreach (var a in data)
+                {
+                    Console.WriteLine($"{a.a} || {a.AutoPop} || {a.c} || {a.d} || {a.e} || {a.f} || {a.g} || {a.h} || {a.i} || {a.j} || {a.k} || {a.l} || {a.m} || {a.n} || {a.o} || {a.p} || {a.q} || {a.r} || {a.s} || {a.t} || {a.u} || {a.v}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
 
             Console.ReadLine();

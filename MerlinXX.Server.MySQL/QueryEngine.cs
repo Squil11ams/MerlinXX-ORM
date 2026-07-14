@@ -111,7 +111,7 @@ namespace MerlinXX.Server.MySQL
                         while (reader.Read())
                         {
                             T temp = new T();
-                            temp.SetDataObject(reader, 0);
+                            temp.SetDataObject(reader);
                             data.Add(temp);
                         }
                     }
@@ -185,7 +185,7 @@ namespace MerlinXX.Server.MySQL
                         {
                             bool run1 = reader.Read();
 
-                            data.SetDataObject(reader, 1);
+                            data.SetDataObject(reader);
                         }
                         else
                         {
