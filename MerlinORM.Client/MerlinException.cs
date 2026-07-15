@@ -11,7 +11,7 @@ namespace MerlinORM.Client
         public string ModuleName { get; private set; }
         public int ErrorNumber { get; private set; }
         public string SafeMsgRaw { get; private set; }
-        public string ErrorCode => $"MERLIN-{ModuleCode}-{ErrorNumber:D4}";
+        public string ErrorCode { get; private set; }
         public string UserSafeMessage { get; private set; }
 
 
@@ -28,12 +28,33 @@ namespace MerlinORM.Client
         }
 
 
-        private void ProcessErrorCode(string ErrorCode)
+        private void ProcessErrorCode(string errorCode)
         {
+            if (string.IsNullOrWhiteSpace(errorCode))
+            {
+                ModuleCode = "SYS";
+                ErrorNumber = 0;
+                ModuleName = "System";
+                SafeMsgRaw = "An unexpected system error occurred.";
+                UserSafeMessage = $"[{ModuleName}] {SafeMsgRaw}";
+                return;
+            }
+
             // 1. Decode Error Code Into Module / ErrorNumber
-            var parts = ErrorCode.Split('-');
+            var parts = errorCode.Split('-');
+
+            if (parts.Length != 3)
+            {
+                ModuleCode = "SYS";
+                ErrorNumber = 0;
+                ModuleName = "System";
+                SafeMsgRaw = "An unexpected system error occurred.";
+                UserSafeMessage = $"[{ModuleName}] {SafeMsgRaw}";
+                return;
+            }
 
             ModuleCode = parts[1].ToUpperInvariant();
+            ErrorCode = errorCode.ToUpperInvariant();
 
             if (int.TryParse(parts[2], out int errorNum))
             {

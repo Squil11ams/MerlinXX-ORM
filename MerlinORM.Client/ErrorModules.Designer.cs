@@ -70,6 +70,15 @@ namespace MerlinORM.Client {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type Conversion Engine.
+        /// </summary>
+        public static string CVT {
+            get {
+                return ResourceManager.GetString("CVT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Database System.
         /// </summary>
         public static string DBM {

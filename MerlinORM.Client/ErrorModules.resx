@@ -120,6 +120,9 @@
   <data name="CFG" xml:space="preserve">
     <value>Configuration Manager</value>
   </data>
+  <data name="CVT" xml:space="preserve">
+    <value>Type Conversion Engine</value>
+  </data>
   <data name="DBM" xml:space="preserve">
     <value>Database System</value>
   </data>

@@ -79,11 +79,56 @@ namespace MerlinORM.Client {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t assign NULL to non-nullable type.
+        /// </summary>
+        public static string MERLIN_CVT_1033 {
+            get {
+                return ResourceManager.GetString("MERLIN-CVT-1033", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Column not found in data set..
         /// </summary>
         public static string MERLIN_MAP_1028 {
             get {
                 return ResourceManager.GetString("MERLIN-MAP-1028", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to populate model, see notes for more info..
+        /// </summary>
+        public static string MERLIN_MAP_1029 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1029", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fallback failed to set property, see notes for more info..
+        /// </summary>
+        public static string MERLIN_MAP_1030 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1030", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing factory for defined MerlinObject.
+        /// </summary>
+        public static string MERLIN_MAP_1031 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1031", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property marked as MerlinObject, Must implement the IMerlinObject Interface.
+        /// </summary>
+        public static string MERLIN_MAP_1032 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1032", resourceCulture);
             }
         }
         
@@ -318,6 +363,15 @@ namespace MerlinORM.Client {
         public static string MERLIN_QEP_1025 {
             get {
                 return ResourceManager.GetString("MERLIN-QEP-1025", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection String is Empty.
+        /// </summary>
+        public static string MERLIN_QEP_1034 {
+            get {
+                return ResourceManager.GetString("MERLIN-QEP-1034", resourceCulture);
             }
         }
     }

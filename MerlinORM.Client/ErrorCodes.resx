@@ -125,9 +125,29 @@
     <value>Connection string needs to be set for requested Connection Key</value>
     <comment>1027</comment>
   </data>
+  <data name="MERLIN-CVT-1033" xml:space="preserve">
+    <value>Can't assign NULL to non-nullable type</value>
+    <comment>1033</comment>
+  </data>
   <data name="MERLIN-MAP-1028" xml:space="preserve">
     <value>Column not found in data set.</value>
     <comment>1028</comment>
+  </data>
+  <data name="MERLIN-MAP-1029" xml:space="preserve">
+    <value>Failed to populate model, see notes for more info.</value>
+    <comment>1029</comment>
+  </data>
+  <data name="MERLIN-MAP-1030" xml:space="preserve">
+    <value>Fallback failed to set property, see notes for more info.</value>
+    <comment>1030</comment>
+  </data>
+  <data name="MERLIN-MAP-1031" xml:space="preserve">
+    <value>Missing factory for defined MerlinObject</value>
+    <comment>1031</comment>
+  </data>
+  <data name="MERLIN-MAP-1032" xml:space="preserve">
+    <value>Property marked as MerlinObject, Must implement the IMerlinObject Interface</value>
+    <comment>1032</comment>
   </data>
   <data name="MERLIN-QEP-1000" xml:space="preserve">
     <value>Failed to process data from database.</value>
@@ -232,5 +252,9 @@
   <data name="MERLIN-QEP-1025" xml:space="preserve">
     <value>No rows returned, unable process 'NULL' row object.</value>
     <comment>1025</comment>
+  </data>
+  <data name="MERLIN-QEP-1034" xml:space="preserve">
+    <value>Connection String is Empty</value>
+    <comment>1034</comment>
   </data>
 </root>

@@ -23,7 +23,7 @@ namespace MerlinORM.Server.MySQL
 
             if(string.IsNullOrWhiteSpace(_connectionString))
             {
-                throw new Exception("ConnectionString is Null, TODO Verify Config if this already happens? ");
+                throw new MerlinException("MERLIN-QEP-1034");
             }
 
 

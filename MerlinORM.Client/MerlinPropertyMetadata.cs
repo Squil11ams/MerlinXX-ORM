@@ -66,7 +66,7 @@ namespace MerlinORM.Client
                     if (isNullable || !actualType.IsValueType)
                         return null;
 
-                    throw new InvalidCastException(
+                    throw new MerlinException("MERLIN-CVT-1033",
                         $"Cannot assign NULL to non-nullable type {targetType.Name}");
                 }
 

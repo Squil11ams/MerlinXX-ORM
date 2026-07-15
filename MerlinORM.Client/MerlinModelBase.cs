@@ -113,7 +113,9 @@ namespace MerlinORM.Client
             {
                 var SourceType = GetSourceType(sourceValue);
 
-                throw new MerlinMappingException(this, prop, columnName, SourceType, lastChanceEx, prop.DefaultValue, originalException);
+                var msg = $"'{this.GetType().Name}' failed to map property '{prop.PropertyName}:{prop.PropertyType.Name}' from '{columnName}:{SourceType}'{Environment.NewLine}Fallback failed to set to default value '{prop.DefaultValue}'";
+
+                throw new MerlinMappingException("MERLIN-MAP-1030", msg,lastChanceEx, originalException);
             }
         }
 
@@ -127,14 +129,14 @@ namespace MerlinORM.Client
         {
             if (prop.MerlinFactory == null)
             {
-                throw new MerlinException(
+                throw new MerlinException("MERLIN-MAP-1031",
                     $"No factory defined for Merlin object '{prop.PropertyName}'.");
             }
 
             var instance = prop.MerlinFactory();
 
             if (instance is not IMerlinObject child)
-                throw new MerlinException(
+                throw new MerlinException("MERLIN-MAP-1032",
                     $"{prop.PropertyName} is not a valid Merlin object.");
 
             child.SetDataObject(data, prop.MerlinPrefix);
