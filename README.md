@@ -15,13 +15,112 @@ The name Merlin represents two ideas:
 
 The goal of MerlinORM is not to hide complexity, but to provide a reliable engine that handles the complexity internally while exposing a clean and predictable API to developers.
 
-## Looking Ahead 
-- AOT Compiler Compliance (Not sure how yet, may involve a standalone project where you feed models, or even better connect to database to generate models and output pre-compiled cache object to eliminate reflection.)
-- Cache of SQL Column Indexes (Minor Performane Improvement)
-
 For complete documentation, examples, and advanced usage, see the Wiki:
 
 https://github.com/Squil11ams/MerlinXX-ORM/wiki
+
+---
+
+# Looking Ahead 
+
+Key improvements I'm focused on
+- Performance
+- AOT Compatible (Not sure how yet, may involve a standalone project where you feed models, or even better connect to database to generate models and output pre-compiled cache object to eliminate reflection.)
+- Trimming Compatible
+- MSSQL Support will have soon the project im working on that required this re-work doesnt us mssql.
+
+## 🚀 MerlinORM Roadmap
+
+### Performance
+
+- [x] Metadata caching
+- [ ] Cache SQL column ordinals (avoid repeated `reader["Column"]` lookups)
+- [ ] Benchmark against Dapper and raw ADO.NET
+- [ ] Reduce allocations during object mapping
+- [ ] Cache compiled converters
+- [ ] Optimize object creation pipeline
+
+---
+
+### Compatibility
+
+- [ ] Native AOT compatibility
+- [ ] Trimming compatibility
+- [ ] PostgreSQL provider
+- [ ] SQL Server provider
+- [ ] SQLite provider
+
+---
+
+### Mapping
+
+- [ ] Constructor-based mapping (records / immutable types)
+- [ ] Custom value converters
+- [ ] Enhanced enum mapping
+- [ ] Ignore NULL database values option
+- [ ] One-to-many collection mapping
+- [ ] Multiple result set support
+
+---
+
+### Diagnostics
+
+- [ ] Mapping performance statistics
+- [ ] Configurable debug logging
+- [ ] SQL execution timing
+- [ ] Improved missing column diagnostics
+- [ ] Mapping validation API
+- [ ] Startup metadata validation
+
+---
+
+### Query API
+
+- [ ] Parameter builder improvements
+- [ ] Stored procedure helpers
+- [ ] Bulk insert helpers
+- [ ] Transaction helpers
+- [ ] Async streaming (`IAsyncEnumerable<T>`)
+
+---
+
+### Developer Experience
+
+- [x] XML documentation
+- [ ] Additional sample projects
+- [ ] SourceLink support
+- [ ] Source generators (optional)
+- [ ] Roslyn analyzers
+- [ ] Expanded documentation and tutorials
+
+---
+
+# Guiding Principles
+
+MerlinORM is designed to remain:
+
+- Lightweight
+- Explicit (SQL-first)
+- Fast
+- Predictable
+- Easy to debug
+- Easy to extend
+
+---
+
+# Not Planned
+
+MerlinORM intentionally does **not** aim to become a full ORM like Entity Framework.
+
+The following features are currently **not planned**:
+
+- ❌ LINQ query provider
+- ❌ Change tracking
+- ❌ Lazy loading
+- ❌ Automatic database migrations
+
+Instead, MerlinORM focuses on providing a lightweight, high-performance mapping layer over ADO.NET while keeping developers in complete control of their SQL.
+
 
 ---
 
