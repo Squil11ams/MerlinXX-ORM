@@ -11,7 +11,7 @@ namespace MerlinORM.Client
 
         public string prefix { get { return _prefix; } }
 
-        public MerlinObject(string prefix)
+        public MerlinObject(string prefix = "")
         {
             this._prefix = prefix;
         }

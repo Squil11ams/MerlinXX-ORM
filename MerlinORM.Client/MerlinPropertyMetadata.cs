@@ -15,7 +15,7 @@ namespace MerlinORM.Client
 
         public bool ThrowError { get; init; }
 
-        public bool IsMerlinObject { get; init; }
+        public bool IsMerlinObject { get; private set; }
 
         public string MerlinPrefix { get; init; }
 
@@ -30,6 +30,8 @@ namespace MerlinORM.Client
 
         public MerlinPropertyMetadata(Type propType, bool isMerlin = false)
         {
+            IsMerlinObject = isMerlin;
+
             if (isMerlin)
             {
                 MerlinFactory = CreateFactory(propType);

@@ -31,6 +31,12 @@ namespace MerlinORM.Client
                     mappedProperties[prop.Name] = map;
                 }
             }
+            Console.WriteLine("=======================================================");
+
+            foreach (var p in mappedProperties)
+            {
+                Console.WriteLine($"{p.Key} : {p.Value.PropertyName} {p.Value.PropertyType} {p.Value.IsMerlinObject}");
+            }
 
             return new MerlinTypeMetadata(mappedProperties);
         }
@@ -42,21 +48,24 @@ namespace MerlinORM.Client
 
             var autoPop = prop.GetCustomAttribute<AutoPopSettings>();
             var merlinObject = prop.GetCustomAttribute<MerlinObject>();
+            var isMerlinObject = prop.GetCustomAttribute<MerlinObject>() != null;
 
-            return new MerlinPropertyMetadata(prop.PropertyType, (merlinObject != null))
+            Console.WriteLine($"{prop.Name} - MerlinObject: {isMerlinObject}");
+
+            var meta = new MerlinPropertyMetadata(prop.PropertyType, isMerlinObject)
             {
                 PropertyName = prop.Name,
                 ColumnName = autoPop?.key ?? prop.Name,
                 PropertyType = prop.PropertyType,
-
                 ThrowError = autoPop?.throwError ?? true,
                 DefaultValue = autoPop?.defaultValue,
-
-                IsMerlinObject = merlinObject != null,
                 MerlinPrefix = merlinObject?.prefix ?? "",
-
                 Setter = CreateSetter(prop)
             };
+
+            Console.WriteLine($"{meta.PropertyName}: IsMerlinBool: {isMerlinObject} IsMerlinObject={meta.IsMerlinObject}, Factory={meta.MerlinFactory}");
+
+            return meta;
         }
 
 
