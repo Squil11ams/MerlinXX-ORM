@@ -65,8 +65,10 @@ Example:
 ```csharp
 public class MyModel : MerlinObjectBase
 {
+    // col_id should be the actual name of the column in the database.
     public int col_id { get; set; }
 
+    // col_name should be the actual name of the column in the database.
     public string col_name { get; set; }
 
     [AutoPopSettings("col_status")]
@@ -79,6 +81,7 @@ public class MyModel : MerlinObjectBase
     public MyOtherModel RelatedModel { get; set; }
 }
 ```
+
 
 ## Exclude
 
@@ -112,21 +115,27 @@ When enabled, Merlin will attempt to populate the nested object using the availa
 
 # Querying Data
 
-Example:
+Example Using the Model Above:
 
 ```csharp
-public class MyRepository
+public static class DataAccessLayer
 {
-    public static List<MyModel> GetModels(string status)
+    private static readonly QueryEngine DB = new("Default");
+
+    public static MyModel GetMyModel(int id)
     {
-        QueryEngine.SetConfig("MySQL_Connection_String");
+        var query = new GenericQuery("SELECT A.*, B.* FROM MyModels JOIN OtherModel ON A.FK = B.ID WHERE col_id = @A;");
 
-        var query = new GenericQuery(
-            "SELECT * FROM mytable WHERE col_status = @status");
+        query.AddParameter("@A", id);
 
-        query.AddParameter("@status", status);
+        return DB.GetObject<MyModel>(query);
+    }
 
-        return QueryEngine.MerlinObject.GetList<MyModel>(query);
+    public static List<MyModel> GetMyModelList()
+    {
+        var query = new GenericQuery("SELECT A.*, B.* FROM MyModels A JOIN OtherModel B ON A.FK = B.ID;");
+
+        return DB.GetList<MyModel>(query);
     }
 }
 ```
