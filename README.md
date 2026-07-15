@@ -108,6 +108,7 @@ Example:
 [MerlinObject]
 public Address Address { get; set; }
 ```
+Important, objects decorated with [MerlinObject] must implement the MerlinModelBase.
 
 When enabled, Merlin will attempt to populate the nested object using the available data.
 
