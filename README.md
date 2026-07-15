@@ -1,6 +1,6 @@
 # MerlinORM
 
-![MerlinORM Logo](icon.png)
+![MerlinORM Logo](logo.png)
 
 [GitHub Repository](https://github.com/Squil11ams/MerlinXX-ORM)
 
