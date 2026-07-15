@@ -15,6 +15,10 @@ The name Merlin represents two ideas:
 
 The goal of MerlinORM is not to hide complexity, but to provide a reliable engine that handles the complexity internally while exposing a clean and predictable API to developers.
 
+## Looking Ahead 
+- AOT Compiler Compliance (Not sure how yet, may involve a standalone project where you feed models, or even better connect to database to generate models and output pre-compiled cache object to eliminate reflection.)
+- Cache of SQL Column Indexes (Minor Performane Improvement)
+
 For complete documentation, examples, and advanced usage, see the Wiki:
 
 https://github.com/Squil11ams/MerlinXX-ORM/wiki
