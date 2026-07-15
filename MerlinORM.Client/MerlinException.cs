@@ -76,5 +76,107 @@ namespace MerlinORM.Client
             // 4. Build Formatted Safe Message
             UserSafeMessage = $"[{ModuleName}] {SafeMsgRaw} (Error Code: {ErrorCode})";
         }
+
+
+        public string ToHTMLString(bool includeDiagnostics = false)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("<div class=\"merlin-exception\">");
+
+            sb.AppendLine($"<h3>{HtmlEncode(ErrorCode)}</h3>");
+
+            sb.AppendLine("<table>");
+            sb.AppendLine($"<tr><td><strong>Type</strong></td><td>{HtmlEncode(this.GetType().Name)}</td></tr>");
+            sb.AppendLine($"<tr><td><strong>Module</strong></td><td>{HtmlEncode(ModuleName)}</td></tr>");
+            sb.AppendLine($"<tr><td><strong>Message</strong></td><td>{HtmlEncode(UserSafeMessage)}</td></tr>");
+
+            if (!string.IsNullOrWhiteSpace(Message))
+            {
+                sb.AppendLine($"<tr><td><strong>Notes</strong></td><td>{HtmlEncode(Message)}</td></tr>");
+            }
+
+            sb.AppendLine("</table>");
+
+            if (includeDiagnostics)
+            {
+                sb.AppendLine("<hr/>");
+                sb.AppendLine("<h4>Diagnostics</h4>");
+
+                sb.AppendLine("<table>");
+
+                sb.AppendLine($"<tr><td><strong>Type Full</strong></td><td>{HtmlEncode(this.GetType().FullName)}</td></tr>");
+
+                if (TargetSite != null)
+                {
+                    sb.AppendLine(
+                        $"<tr><td><strong>Target</strong></td><td>{HtmlEncode(TargetSite.ToString())}</td></tr>");
+                }
+
+                if (!string.IsNullOrWhiteSpace(Source))
+                {
+                    sb.AppendLine(
+                        $"<tr><td><strong>Source</strong></td><td>{HtmlEncode(Source)}</td></tr>");
+                }
+
+                sb.AppendLine("</table>");
+
+                if (InnerException != null)
+                {
+                    sb.AppendLine("<h4>Inner Exception</h4>");
+                    sb.AppendLine($"<pre>{HtmlEncode(InnerException.ToString())}</pre>");
+                }
+
+                sb.AppendLine("<h4>Stack Trace</h4>");
+                sb.AppendLine($"<pre>{HtmlEncode(StackTrace ?? string.Empty)}</pre>");
+            }
+
+            sb.AppendLine("</div>");
+
+            return sb.ToString();
+        }
+
+        private static string HtmlEncode(string? value)
+        {
+            return System.Net.WebUtility.HtmlEncode(value ?? string.Empty);
+        }
+
+        public string ToString(bool includeDiagnostics)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($"Exception Type: {GetType().Name}");
+            sb.AppendLine($"Code: {ErrorCode}");
+            sb.AppendLine($"Module: {ModuleName}");
+            sb.AppendLine($"Message: {UserSafeMessage}");
+
+            if (!string.IsNullOrWhiteSpace(Message))
+            {
+                sb.AppendLine($"Notes: {Message}");
+            }
+
+            if (includeDiagnostics)
+            {
+                sb.AppendLine($"Type: {GetType().FullName}");
+                sb.AppendLine($"Target: {TargetSite}");
+                sb.AppendLine($"Source: {Source}");
+
+                if (InnerException != null)
+                {
+                    sb.AppendLine("[Inner Exception]");
+                    sb.AppendLine(InnerException.ToString());
+                }
+
+                sb.AppendLine("[Stack Trace]");
+                sb.AppendLine(StackTrace);
+            }
+
+            return sb.ToString();
+        }
+
+        public override string ToString()
+        {
+            return ToString(false);
+        }
     }
 }

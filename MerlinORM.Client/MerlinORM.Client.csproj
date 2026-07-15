@@ -2,9 +2,54 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <Version>2.0.0</Version>
+    <PackageVersion>2.0.0</PackageVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>MerlinORM Client</Title>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Authors>Squi11iams</Authors>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/Squil11ams/MerlinXX-ORM</PackageProjectUrl>
+    <Description>Merlin is a lightweight .NET utility framework providing reusable infrastructure components for application development, including object mapping, type conversion, structured exception handling, resource-based messaging, and extensible data access support. Designed to simplify complex application logic while maintaining clear diagnostics and developer-friendly error reporting.</Description>
+    <Copyright>2026</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Squil11ams/MerlinXX-ORM.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet;reflection;mapping;object-mapper;conversion;exceptions;utilities;framework;database;mysql;orm</PackageTags>
+    <PackageReleaseNotes>## 2.0.0
+
+Merlin 2.0 is a major architectural update focused on consistency, diagnostics, and maintainability.
+
+### Added
+- Structured exception framework with module-specific error codes.
+- Resource-based error messaging.
+- Improved mapping and conversion diagnostics.
+- Enhanced support for identifying and troubleshooting runtime failures.
+
+### Changed
+- Refactored internal architecture.
+- Updated exception handling behavior.
+- Improved consistency across Merlin components.
+
+### Breaking Changes
+- Existing consumers using previous exception types or behaviors may require updates.</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.9" />
