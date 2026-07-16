@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>2.0.1</Version>
-    <PackageVersion>2.0.1</PackageVersion>
+    <Version>2.0.2</Version>
+    <PackageVersion>2.0.2</PackageVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -18,7 +18,10 @@
     <RepositoryUrl>https://github.com/Squil11ams/MerlinXX-ORM.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dotnet;reflection;mapping;object-mapper;conversion;exceptions;utilities;framework;database;mysql;orm</PackageTags>
-    <PackageReleaseNotes>## 2.0.1
+    <PackageReleaseNotes>## 2.0.2
+      ### Fixes
+      - Changed MySQL Driver From MySql.Data to MySqlConnector Major Perf Improvements.
+      ## 2.0.1
       ### Fixes
       - Issue 1, Resolved, Fixed Property Metadata From Overwriting itself and prioritized derived class over base.
       - Fixed MerlinException not mapping error messages correctly.
@@ -62,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="9.7.0" />
+    <PackageReference Include="MySqlConnector" Version="2.6.1" />
   </ItemGroup>
 
   <ItemGroup>
