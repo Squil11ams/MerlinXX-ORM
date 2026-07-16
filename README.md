@@ -1,6 +1,6 @@
 # MerlinORM
 
-![MerlinORM Logo](icon.png)
+![MerlinORM Logo](logo.png)
 
 [GitHub Repository](https://github.com/Squil11ams/MerlinXX-ORM)
 
@@ -15,9 +15,115 @@ The name Merlin represents two ideas:
 
 The goal of MerlinORM is not to hide complexity, but to provide a reliable engine that handles the complexity internally while exposing a clean and predictable API to developers.
 
+[Merlin vs Dapper Performance](https://github.com/Squil11ams/MerlinXX-ORM/wiki/Merlin-Vs-Dapper)
+
+
 For complete documentation, examples, and advanced usage, see the Wiki:
 
 https://github.com/Squil11ams/MerlinXX-ORM/wiki
+
+---
+
+# Looking Ahead 
+
+Key improvements I'm focused on
+- Performance
+- AOT Compatible (Not sure how yet, may involve a standalone project where you feed models, or even better connect to database to generate models and output pre-compiled cache object to eliminate reflection.)
+- Trimming Compatible
+- MSSQL Support will have soon the project im working on that required this re-work doesnt us mssql.
+
+## 🚀 MerlinORM Roadmap
+
+### Performance
+
+- [x] Metadata caching
+- [ ] Cache SQL column ordinals (avoid repeated `reader["Column"]` lookups)
+- [ ] Benchmark against Dapper and raw ADO.NET
+- [ ] Reduce allocations during object mapping
+- [ ] Cache compiled converters
+- [ ] Optimize object creation pipeline
+
+---
+
+### Compatibility
+
+- [ ] Native AOT compatibility
+- [ ] Trimming compatibility
+- [ ] PostgreSQL provider
+- [ ] SQL Server provider
+- [ ] SQLite provider
+
+---
+
+### Mapping
+
+- [ ] Constructor-based mapping (records / immutable types)
+- [ ] Custom value converters
+- [ ] Enhanced enum mapping
+- [ ] Ignore NULL database values option
+- [ ] One-to-many collection mapping
+- [ ] Multiple result set support
+
+---
+
+### Diagnostics
+
+- [ ] Mapping performance statistics
+- [ ] Configurable debug logging
+- [ ] SQL execution timing
+- [ ] Improved missing column diagnostics
+- [ ] Mapping validation API
+- [ ] Startup metadata validation
+
+---
+
+### Query API
+
+- [ ] Parameter builder improvements
+- [ ] Stored procedure helpers
+- [ ] Bulk insert helpers
+- [ ] Transaction helpers
+- [ ] Async streaming (`IAsyncEnumerable<T>`)
+
+---
+
+### Developer Experience
+
+- [x] XML documentation
+- [ ] Additional sample projects
+- [ ] SourceLink support
+- [ ] Source generators (optional)
+- [ ] Roslyn analyzers
+- [ ] Expanded documentation and tutorials
+
+---
+
+# Guiding Principles
+
+MerlinORM is designed to remain:
+
+- Lightweight
+- Explicit (SQL-first)
+- Fast
+- Predictable
+- Easy to debug
+- Easy to extend
+
+---
+
+# Not Planned
+
+MerlinORM intentionally does **not** aim to become a full ORM like Entity Framework.
+
+The following features are currently **not planned**:
+
+- ❌ LINQ query provider
+- ❌ Change tracking
+- ❌ Lazy loading
+- ❌ Automatic database migrations
+
+Instead, MerlinORM focuses on providing a lightweight, high-performance mapping layer over ADO.NET while keeping developers in complete control of their SQL.
+
 
 ---
 
@@ -65,8 +171,10 @@ Example:
 ```csharp
 public class MyModel : MerlinObjectBase
 {
+    // col_id should be the actual name of the column in the database.
     public int col_id { get; set; }
 
+    // col_name should be the actual name of the column in the database.
     public string col_name { get; set; }
 
     [AutoPopSettings("col_status")]
@@ -79,6 +187,7 @@ public class MyModel : MerlinObjectBase
     public MyOtherModel RelatedModel { get; set; }
 }
 ```
+
 
 ## Exclude
 
@@ -105,6 +214,7 @@ Example:
 [MerlinObject]
 public Address Address { get; set; }
 ```
+Important, objects decorated with [MerlinObject] must implement the MerlinModelBase.
 
 When enabled, Merlin will attempt to populate the nested object using the available data.
 
@@ -112,21 +222,27 @@ When enabled, Merlin will attempt to populate the nested object using the availa
 
 # Querying Data
 
-Example:
+Example Using the Model Above:
 
 ```csharp
-public class MyRepository
+public static class DataAccessLayer
 {
-    public static List<MyModel> GetModels(string status)
+    private static readonly QueryEngine DB = new("Default");
+
+    public static MyModel GetMyModel(int id)
     {
-        QueryEngine.SetConfig("MySQL_Connection_String");
+        var query = new GenericQuery("SELECT A.*, B.* FROM MyModels JOIN OtherModel ON A.FK = B.ID WHERE col_id = @A;");
 
-        var query = new GenericQuery(
-            "SELECT * FROM mytable WHERE col_status = @status");
+        query.AddParameter("@A", id);
 
-        query.AddParameter("@status", status);
+        return DB.GetObject<MyModel>(query);
+    }
 
-        return QueryEngine.MerlinObject.GetList<MyModel>(query);
+    public static List<MyModel> GetMyModelList()
+    {
+        var query = new GenericQuery("SELECT A.*, B.* FROM MyModels A JOIN OtherModel B ON A.FK = B.ID;");
+
+        return DB.GetList<MyModel>(query);
     }
 }
 ```
