@@ -15,7 +15,7 @@ The name Merlin represents two ideas:
 
 The goal of MerlinORM is not to hide complexity, but to provide a reliable engine that handles the complexity internally while exposing a clean and predictable API to developers.
 
-[Merlin vs Dapper Performance]([https://github.com/Squil11ams/MerlinXX-ORM](https://github.com/Squil11ams/MerlinXX-ORM/wiki/Merlin-Vs-Dapper))
+[Merlin vs Dapper Performance](https://github.com/Squil11ams/MerlinXX-ORM/wiki/Merlin-Vs-Dapper)
 
 
 For complete documentation, examples, and advanced usage, see the Wiki:
