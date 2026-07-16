@@ -149,6 +149,18 @@
     <value>Property marked as MerlinObject, Must implement the IMerlinObject Interface</value>
     <comment>1032</comment>
   </data>
+  <data name="MERLIN-MAP-1035" xml:space="preserve">
+    <value>Missing Property Setter Action, Unable to populate property.</value>
+    <comment>1035</comment>
+  </data>
+  <data name="MERLIN-MAP-1036" xml:space="preserve">
+    <value>Missing Property Setter Action, Unable to populate property.</value>
+    <comment>1036</comment>
+  </data>
+  <data name="MERLIN-MAP-1037" xml:space="preserve">
+    <value>Missing Property Setter Action, Unable to populate property.</value>
+    <comment>1037</comment>
+  </data>
   <data name="MERLIN-QEP-1000" xml:space="preserve">
     <value>Failed to process data from database.</value>
     <comment>1000</comment>

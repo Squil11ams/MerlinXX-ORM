@@ -4,6 +4,9 @@ using System.Text;
 
 namespace MerlinORM.Client
 {
+    /// <summary>
+    /// Not used Yet.
+    /// </summary>
     public sealed class MerlinOptions
     {
         /// <summary>

@@ -4,10 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 
 namespace MerlinORM.Server.MySQL
 {
+    /// <summary>
+    /// QueryEngine is used to actually interact with the database.
+    /// 
+    /// TODO: Probably should either use Interface to support different databases or renamed to better indicate MySQL Only Support.
+    /// </summary>
+    [SupportedOSPlatform("windows")]
     public class QueryEngine
     {
         #region FIELDS
@@ -16,7 +23,12 @@ namespace MerlinORM.Server.MySQL
 
 
         #region CONSTRUCTORS
-
+        /// <summary>
+        /// Builds new instance of QueryEngine and loads connection string.
+        /// </summary>
+        /// <param name="ConnectionStringKey"></param>
+        /// <param name="AppSettings"></param>
+        /// <exception cref="MerlinException"></exception>
         public QueryEngine(string ConnectionStringKey, string AppSettings = "appsettings.json") 
         {
             _connectionString = MerlinConfig.GetConnectionString(ConnectionStringKey, AppSettings);
@@ -102,11 +114,22 @@ namespace MerlinORM.Server.MySQL
 
         #region GetList<T> where T : ISqlObject
         /// <summary>
-        /// Returns a list of T
+        /// Executes the specified query and maps the returned rows to a list of model objects.
         /// </summary>
-        /// <typeparam name="T">Type must implement ISqlObject interface</typeparam>
-        /// <param name="queryObj">Sql Query Object implements ISqlProvider</param>
-        /// <returns>List of T</returns>
+        /// <typeparam name="T">
+        /// The model type to populate. The type must implement <see cref="IMerlinObject"/>
+        /// and provide a parameterless constructor.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the SQL statement and parameters to execute.
+        /// </param>
+        /// <returns>
+        /// A <see cref="List{T}"/> containing the mapped objects returned by the query.
+        /// Returns an empty list if the query returns no rows.
+        /// </returns>
+        /// <exception cref="MerlinException">
+        /// Thrown when the query result cannot be mapped to the requested model type.
+        /// </exception>
         public List<T> GetList<T>(IMerlinProvider queryObj) where T : IMerlinObject, new()
         {
             return Execute(() =>
@@ -128,6 +151,32 @@ namespace MerlinORM.Server.MySQL
             }, "MERLIN-QEP-1004");
         }
 
+
+
+        /// <summary>
+        /// Executes the specified query asynchronously and maps the returned rows to a list of model objects.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The model type to populate. The type must implement <see cref="IMerlinObject"/>
+        /// and provide a parameterless constructor.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the SQL statement and parameters to execute.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// A token used to cancel the database operation.
+        /// </param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The result contains a
+        /// <see cref="List{T}"/> of mapped objects returned by the query.
+        /// Returns an empty list if the query returns no rows.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is canceled through the provided <paramref name="cancellationToken"/>.
+        /// </exception>
+        /// <exception cref="MerlinException">
+        /// Thrown when the query result cannot be mapped to the requested model type.
+        /// </exception>
         public async Task<List<T>> GetListAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default) where T : IMerlinObject, new()
         {
             return await ExecuteAsync(async () =>
@@ -153,11 +202,22 @@ namespace MerlinORM.Server.MySQL
 
         #region GetObject<T> where T : ISqlObject
         /// <summary>
-        /// Return Single Object of T
+        /// Executes the specified query and maps the first returned row to a model object.
         /// </summary>
-        /// <typeparam name="T">Type must implement ISqlObject interface</typeparam>
-        /// <param name="queryObj">Sql Query Object implements ISqlProvider</param>
-        /// <returns>Single Object of T</returns>
+        /// <typeparam name="T">
+        /// The model type to populate. The type must implement <see cref="IMerlinObject"/>
+        /// and provide a parameterless constructor.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the SQL statement and parameters to execute.
+        /// </param>
+        /// <returns>
+        /// The mapped object from the first row returned by the query;
+        /// otherwise <c>null</c> if no rows are returned.
+        /// </returns>
+        /// <exception cref="MerlinException">
+        /// Thrown when the query result cannot be mapped to the requested model type.
+        /// </exception>
         public T? GetObject<T>(IMerlinProvider queryObj) where T : IMerlinObject, new()
         {
             return Execute(() =>
@@ -179,6 +239,31 @@ namespace MerlinORM.Server.MySQL
             }, "MERLIN-QEP-1006");
         }
 
+        /// <summary>
+        /// Executes the specified query asynchronously and maps the first returned row to a model object.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The model type to populate. The type must implement <see cref="IMerlinObject"/>
+        /// and provide a parameterless constructor.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// A token used to cancel the database operation.
+        /// </param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The result contains the mapped
+        /// object from the first row returned by the query; otherwise <c>null</c> if no rows
+        /// are returned.
+        /// </returns>
+        /// <exception cref="OperationCanceledException">
+        /// Thrown when the operation is canceled through the provided
+        /// <paramref name="cancellationToken"/>.
+        /// </exception>
+        /// <exception cref="MerlinException">
+        /// Thrown when the query result cannot be mapped to the requested model type.
+        /// </exception>
         public async Task<T?> GetObjectAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default) where T : IMerlinObject, new()
         {
             return await ExecuteAsync(async () =>
@@ -204,13 +289,30 @@ namespace MerlinORM.Server.MySQL
 
         #region GetSimpleList
         /// <summary>
-        /// Returns a list of T 
-        /// Casts first column of query to T
-        /// 
-        /// T must be a castable object from SQL
+        /// Executes the specified query and converts the first column of each returned row
+        /// into a list of simple values.
         /// </summary>
-        /// <param name="queryObj">Sql Query Object implements ISqlProvider</param>
-        /// <returns>List of T</returns>
+        /// <typeparam name="T">
+        /// The target value type. The database value from the first column of each row
+        /// must be convertible to this type.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <returns>
+        /// A <see cref="List{T}"/> containing the converted values from the first column
+        /// of each returned row.
+        /// Returns an empty list if the query returns no rows.
+        /// </returns>
+        /// <remarks>
+        /// This method is intended for queries returning a single column of simple values,
+        /// such as integers, strings, dates, or other directly convertible types.
+        /// It does not perform object mapping and should not be used for model types
+        /// implementing <see cref="IMerlinObject"/>.
+        /// </remarks>
+        /// <exception cref="MerlinException">
+        /// Thrown when a returned database value cannot be converted to the requested type.
+        /// </exception>
         public List<T> GetSimpleList<T>(IMerlinProvider queryObj)
         {
             return Execute(() =>
@@ -241,6 +343,34 @@ namespace MerlinORM.Server.MySQL
             }, "MERLIN-QEP-1008");
         }
 
+        /// <summary>
+        /// Executes the specified query and converts the first column of each returned row
+        /// into a list of simple values.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The target value type. The database value from the first column of each row
+        /// must be convertible to this type.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// A token used to cancel the database operation.
+        /// </param>
+        /// <returns>
+        /// A <see cref="List{T}"/> containing the converted values from the first column
+        /// of each returned row.
+        /// Returns an empty list if the query returns no rows.
+        /// </returns>
+        /// <remarks>
+        /// This method is intended for queries returning a single column of simple values,
+        /// such as integers, strings, dates, or other directly convertible types.
+        /// It does not perform object mapping and should not be used for model types
+        /// implementing <see cref="IMerlinObject"/>.
+        /// </remarks>
+        /// <exception cref="MerlinException">
+        /// Thrown when a returned database value cannot be converted to the requested type.
+        /// </exception>
         public async Task<List<T>> GetSimpleListAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
         {
             return await ExecuteAsync(async () =>
@@ -276,6 +406,29 @@ namespace MerlinORM.Server.MySQL
 
 
         #region GetSimple
+        /// <summary>
+        /// Executes the specified query and converts the first column of the first returned row
+        /// into a simple value.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The target value type. The database value must be convertible to this type.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <returns>
+        /// The converted value from the first column of the first returned row.
+        /// </returns>
+        /// <remarks>
+        /// This method is intended for queries returning a single row with a single column,
+        /// such as retrieving a count, identifier, status value, or other scalar result.
+        /// It does not perform object mapping and should not be used for types implementing
+        /// <see cref="IMerlinObject"/>.
+        /// </remarks>
+        /// <exception cref="MerlinException">
+        /// Thrown when no rows are returned or when the returned value cannot be converted
+        /// to the requested type.
+        /// </exception>
         public T GetSimple<T>(IMerlinProvider queryObj)
         {
             return Execute(() =>
@@ -304,6 +457,32 @@ namespace MerlinORM.Server.MySQL
             }, "MERLIN-QEP-1010");
         }
 
+        /// <summary>
+        /// Executes the specified query and converts the first column of the first returned row
+        /// into a simple value.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The target value type. The database value must be convertible to this type.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// Cancellation token used to cancel database operation.
+        /// </param>
+        /// <returns>
+        /// The converted value from the first column of the first returned row.
+        /// </returns>
+        /// <remarks>
+        /// This method is intended for queries returning a single row with a single column,
+        /// such as retrieving a count, identifier, status value, or other scalar result.
+        /// It does not perform object mapping and should not be used for types implementing
+        /// <see cref="IMerlinObject"/>.
+        /// </remarks>
+        /// <exception cref="MerlinException">
+        /// Thrown when no rows are returned or when the returned value cannot be converted
+        /// to the requested type.
+        /// </exception>
         public async Task<T> GetSimpleAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
         {
             return await ExecuteAsync(async () =>
@@ -335,6 +514,42 @@ namespace MerlinORM.Server.MySQL
 
 
         #region GetSimpleArray
+        /// <summary>
+        /// Executes the specified query and converts the values from the first returned row
+        /// into an array of simple values.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The target value type. Each returned column value must be convertible to this type.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <param name="columns">
+        /// The number of columns expected in the returned row.
+        /// </param>
+        /// <returns>
+        /// An array containing the converted values from the first returned row.
+        /// </returns>
+        /// <remarks>
+        /// This method is intended for queries returning a single row with multiple columns
+        /// of the same convertible type.
+        ///
+        /// For example, a query returning:
+        /// <code>
+        /// SELECT voltage_a, voltage_b, voltage_c FROM measurements;
+        /// </code>
+        /// can be returned as:
+        /// <code>
+        /// double[] voltages = queryEngine.GetSimpleArray&lt;double&gt;(query, 3);
+        /// </code>
+        ///
+        /// This method does not perform object mapping and should not be used for types
+        /// implementing <see cref="IMerlinObject"/>.
+        /// </remarks>
+        /// <exception cref="MerlinException">
+        /// Thrown when no rows are returned, fewer columns are returned than requested,
+        /// or a column value cannot be converted to the requested type.
+        /// </exception>
         public T[] GetSimpleArray<T>(IMerlinProvider queryObj, int columns)
         {
             return Execute(() =>
@@ -379,6 +594,45 @@ namespace MerlinORM.Server.MySQL
             }, "MERLIN-QEP-1012");
         }
 
+        /// <summary>
+        /// Executes the specified query and converts the values from the first returned row
+        /// into an array of simple values.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The target value type. Each returned column value must be convertible to this type.
+        /// </typeparam>
+        /// <param name="queryObj">
+        /// The query provider containing the query statement and parameters to execute.
+        /// </param>
+        /// <param name="columns">
+        /// The number of columns expected in the returned row.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// Cancellation token used to cancel database operation.
+        /// </param>
+        /// <returns>
+        /// An array containing the converted values from the first returned row.
+        /// </returns>
+        /// <remarks>
+        /// This method is intended for queries returning a single row with multiple columns
+        /// of the same convertible type.
+        ///
+        /// For example, a query returning:
+        /// <code>
+        /// SELECT voltage_a, voltage_b, voltage_c FROM measurements;
+        /// </code>
+        /// can be returned as:
+        /// <code>
+        /// double[] voltages = queryEngine.GetSimpleArray&lt;double&gt;(query, 3);
+        /// </code>
+        ///
+        /// This method does not perform object mapping and should not be used for types
+        /// implementing <see cref="IMerlinObject"/>.
+        /// </remarks>
+        /// <exception cref="MerlinException">
+        /// Thrown when no rows are returned, fewer columns are returned than requested,
+        /// or a column value cannot be converted to the requested type.
+        /// </exception>
         public async Task<T[]> GetSimpleArrayAsync<T>(IMerlinProvider queryObj, int columns, CancellationToken cancellationToken = default)
         {
             return await ExecuteAsync(async () =>
@@ -426,6 +680,15 @@ namespace MerlinORM.Server.MySQL
 
 
         #region NO-RETURN
+        /// <summary>
+        /// Executes a SQL command that does not return a result set.
+        /// </summary>
+        /// <param name="queryObj">
+        /// SQL query provider containing the command text and parameters to execute.
+        /// </param>
+        /// <returns>
+        /// The number of rows affected by the command.
+        /// </returns>
         public int ExecuteNonQuery(IMerlinProvider queryObj)
         {
             return Execute(() =>
@@ -437,6 +700,19 @@ namespace MerlinORM.Server.MySQL
             }, "MERLIN-QEP-1014");
         }
 
+        /// <summary>
+        /// Asynchronously executes a SQL command that does not return a result set.
+        /// </summary>
+        /// <param name="queryObj">
+        /// SQL query provider containing the command text and parameters to execute.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// Token used to cancel the asynchronous operation.
+        /// </param>
+        /// <returns>
+        /// A task representing the asynchronous operation.
+        /// The task result contains the number of rows affected by the command.
+        /// </returns>
         public async Task<int> ExecuteNonQueryAsync(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
         {
             return await ExecuteAsync(async () =>

@@ -5,29 +5,95 @@ using System.Text;
 
 namespace MerlinORM.Client
 {
+    /// <summary>
+    /// Exception using Merlin's error code system.
+    /// </summary>
     public class MerlinException : Exception
     {
+        /// <summary>
+        /// 3 letter code representing the module.
+        /// </summary>
         public string ModuleCode { get; private set; }
+        
+        /// <summary>
+        /// Resolved module name from the module code.
+        /// </summary>
         public string ModuleName { get; private set; }
+        
+        /// <summary>
+        /// The actual error code number.
+        /// </summary>
         public int ErrorNumber { get; private set; }
+
+        /// <summary>
+        /// Resolved error message associated with the error code.
+        /// </summary>
         public string SafeMsgRaw { get; private set; }
+
+        /// <summary>
+        /// Error Code ie. MERLIN-MAP-1029
+        /// </summary>
         public string ErrorCode { get; private set; }
+
+        /// <summary>
+        /// Formatted message [ModuleName] SafeMsgRaw (ErrorCode)
+        /// </summary>
         public string UserSafeMessage { get; private set; }
 
 
-        public MerlinException() { }
+        /// <summary>
+        /// Empty Merlin Exception, uses default error codes
+        /// </summary>
+        public MerlinException() 
+        {
+            ModuleCode = "SYS";
+            ErrorNumber = 0;
+            ErrorCode = "MERLIN-SYS-1000";
+            ModuleName = "System";
+            SafeMsgRaw = "An unexpected system error occurred.";
+            UserSafeMessage = $"[{ModuleName}] {SafeMsgRaw}";
+        }
 
+        /// <summary>
+        /// Standard Constructor For Merlin System
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="innerException"></param>
         public MerlinException(string errorCode, Exception? innerException = null) : base(null, innerException)
         {
+            ModuleCode = "SYS";
+            ErrorNumber = 0;
+            ErrorCode = "MERLIN-SYS-1000";
+            ModuleName = "System";
+            SafeMsgRaw = "An unexpected system error occurred.";
+            UserSafeMessage = $"[{ModuleName}] {SafeMsgRaw}";
+
             ProcessErrorCode(errorCode);
         }
 
+        /// <summary>
+        /// Standard, using Message as an extra notes field.
+        /// TODO: implement an actual notes field and override Message to combine Usersafemessage and notes
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="message"></param>
+        /// <param name="innerException"></param>
         public MerlinException(string errorCode, string message, Exception? innerException = null) : base(message, innerException)
         {
+            ModuleCode = "SYS";
+            ErrorNumber = 0;
+            ErrorCode = "MERLIN-SYS-1000";
+            ModuleName = "System";
+            SafeMsgRaw = "An unexpected system error occurred.";
+            UserSafeMessage = $"[{ModuleName}] {SafeMsgRaw}";
+
             ProcessErrorCode(errorCode);
         }
 
-
+        /// <summary>
+        /// Processes Error Code to set ModuleName, SafeMsgRaw, and UserSafeMessage
+        /// </summary>
+        /// <param name="errorCode"></param>
         private void ProcessErrorCode(string errorCode)
         {
             if (string.IsNullOrWhiteSpace(errorCode))
@@ -69,8 +135,7 @@ namespace MerlinORM.Client
             ModuleName = ErrorModules.ResourceManager.GetString(ModuleCode) ?? ModuleCode;
 
             // 3. Resolve Raw Safe Message
-            var resourceKey = $"MERLIN_{ModuleCode}_{ErrorNumber}";
-            SafeMsgRaw = ErrorCodes.ResourceManager.GetString(resourceKey)
+            SafeMsgRaw = ErrorCodes.ResourceManager.GetString(errorCode)
                                 ?? "An unexpected system operation error occurred.";
 
             // 4. Build Formatted Safe Message
@@ -78,6 +143,11 @@ namespace MerlinORM.Client
         }
 
 
+        /// <summary>
+        /// Outputs Exception Details decorated with HTML Tags
+        /// </summary>
+        /// <param name="includeDiagnostics">True, includes additional info such as inner exception, stack trace, etc.</param>
+        /// <returns>HTML Formatted String</returns>
         public string ToHTMLString(bool includeDiagnostics = false)
         {
             var sb = new StringBuilder();
@@ -136,11 +206,21 @@ namespace MerlinORM.Client
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Encodes value in HTML Safe
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private static string HtmlEncode(string? value)
         {
             return System.Net.WebUtility.HtmlEncode(value ?? string.Empty);
         }
 
+        /// <summary>
+        /// Outputs Exception Details
+        /// </summary>
+        /// <param name="includeDiagnostics">True, includes additional info such as inner exception, stack trace, etc.</param>
+        /// <returns>HTML Formatted String</returns>
         public string ToString(bool includeDiagnostics)
         {
             StringBuilder sb = new StringBuilder();
@@ -174,6 +254,10 @@ namespace MerlinORM.Client
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Executes ToString(false)
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return ToString(false);

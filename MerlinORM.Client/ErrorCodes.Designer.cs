@@ -133,6 +133,33 @@ namespace MerlinORM.Client {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing Property Setter Action, Unable to populate property..
+        /// </summary>
+        public static string MERLIN_MAP_1035 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1035", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing Property Setter Action, Unable to populate property..
+        /// </summary>
+        public static string MERLIN_MAP_1036 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1036", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing Property Setter Action, Unable to populate property..
+        /// </summary>
+        public static string MERLIN_MAP_1037 {
+            get {
+                return ResourceManager.GetString("MERLIN-MAP-1037", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to process data from database..
         /// </summary>
         public static string MERLIN_QEP_1000 {

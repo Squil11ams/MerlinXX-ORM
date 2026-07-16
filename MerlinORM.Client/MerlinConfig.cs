@@ -1,10 +1,16 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
 
 namespace MerlinORM.Client
 {
+    /// <summary>
+    /// Handles the configuration logic for Merlin.
+    /// Peforms Read/Write function on the config file.
+    /// </summary>using System.Runtime.Versioning;
+    [SupportedOSPlatform("windows")]
     public static class MerlinConfig
     {
         /// <summary>

@@ -8,15 +8,25 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MerlinORM.Client
 {
+    /// <summary>
+    /// Should be the base for all Merlin Data Models.
+    /// Includes logic for the Mapping System
+    /// </summary>
     [DataContract]
     public class MerlinModelBase : IMerlinObject
     {
         #region FIELDS
+        /// <summary>
+        /// Cached Metadata for the model.
+        /// </summary>
         protected MerlinTypeMetadata Metadata =>
                     MerlinMetaCache.Get(GetType());
         #endregion
 
         #region CONSTRUCTOR
+        /// <summary>
+        /// Empty constructor to support serialization
+        /// </summary>
         public MerlinModelBase() { }
         #endregion
 
@@ -47,7 +57,7 @@ namespace MerlinORM.Client
                 }
                 catch(Exception e)
                 {
-                    throw new MerlinMissingColumnException("MERLIN-MAP-1028", this.GetType().Name, columnName, e);
+                    throw new MerlinMissingColumnException("MERLIN-MAP-1028", this.GetType().GetFriendlyName(), columnName, e);
                 }
 
                 SetProperty(prop, columnName, sourceValue);
@@ -57,7 +67,6 @@ namespace MerlinORM.Client
         /// <summary>
         /// Set the individual property, attempts to use Meta's Converter, to matchup types.
         /// </summary>
-        /// <param name="data">Data row from database.</param>
         /// <param name="prop">Property in model being set.</param>
         /// <param name="columnName">Column name used to pull data.</param>
         /// <param name="sourceValue">Actual value from data row.</param>
@@ -67,6 +76,14 @@ namespace MerlinORM.Client
             try
             {
                 var val = prop.Converter(sourceValue);
+                
+                if (prop.Setter == null)
+                {
+                    throw new MerlinException(
+                        "MERLIN-MAP-1035",
+                        $"'{this.GetType().Name}.{prop.PropertyName}' does not have a setter.");
+                }
+
                 prop.Setter(this, val);
             }
             catch (Exception ex)
@@ -75,7 +92,7 @@ namespace MerlinORM.Client
                 {
                     var SourceType = GetSourceType(sourceValue);
 
-                    var msg = $"'{this.GetType().Name}' failed to map property '{prop.PropertyName}:{prop.PropertyType.Name}' from '{columnName}:{SourceType}'";
+                    var msg = $"'{this.GetType().Name}' failed to map property '{prop.PropertyName}:{prop.PropertyType.GetFriendlyName()}' from '{columnName}:{SourceType}'";
 
                     throw new MerlinMappingException("MERLIN-MAP-1029", msg, ex);
                 }
@@ -83,7 +100,12 @@ namespace MerlinORM.Client
                 SetPropertyFallback(prop, columnName, sourceValue, ex);
             }
         }
-
+        
+        /// <summary>
+        /// Checks if value is null, return string "Null" otherwise get Type.GetFriendlyName()
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private static string GetSourceType(object? value)
         {
             if (value == null || value == DBNull.Value)
@@ -91,29 +113,37 @@ namespace MerlinORM.Client
                 return "NULL";
             }
 
-            return value.GetType().Name;
+            return value.GetType().GetFriendlyName();
         }
 
         /// <summary>
         /// Incase SetProperty fails, and model is set to not throw exception. Attempt to set to DefaultValue. Throws an exception if this fails.
         /// </summary>
-        /// <param name="data">Data row from database.</param>
         /// <param name="prop">Property in model being set.</param>
         /// <param name="columnName">Column name used to pull data.</param>
         /// <param name="sourceValue">Actual value from data row.</param>
+        /// <param name="originalException">Exception that triggered the Fallback System</param>
         /// <exception cref="MerlinMappingException"></exception>
         private void SetPropertyFallback(MerlinPropertyMetadata prop, string columnName, object? sourceValue, Exception originalException)
         {
             try
             {
                 var fallback = prop.Converter(prop.DefaultValue);
+                
+                if (prop.Setter == null)
+                {
+                    throw new MerlinException(
+                        "MERLIN-MAP-1036",
+                        $"'{this.GetType().Name}.{prop.PropertyName}' does not have a setter.");
+                }
+
                 prop.Setter(this, fallback);
             }
             catch (Exception lastChanceEx)
             {
                 var SourceType = GetSourceType(sourceValue);
 
-                var msg = $"'{this.GetType().Name}' failed to map property '{prop.PropertyName}:{prop.PropertyType.Name}' from '{columnName}:{SourceType}'{Environment.NewLine}Fallback failed to set to default value '{prop.DefaultValue}'";
+                var msg = $"'{this.GetType().Name}' failed to map property '{prop.PropertyName}:{prop.PropertyType.GetFriendlyName()}' from '{columnName}:{SourceType}'{Environment.NewLine}Fallback failed to set to default value '{prop.DefaultValue}'";
 
                 throw new MerlinMappingException("MERLIN-MAP-1030", msg,lastChanceEx, originalException);
             }
@@ -140,6 +170,13 @@ namespace MerlinORM.Client
                     $"{prop.PropertyName} is not a valid Merlin object.");
 
             child.SetDataObject(data, prop.MerlinPrefix);
+
+            if (prop.Setter == null)
+            {
+                throw new MerlinException(
+                    "MERLIN-MAP-1037",
+                    $"'{this.GetType().Name}.{prop.PropertyName}' does not have a setter.");
+            }
 
             prop.Setter(this, instance);
         }

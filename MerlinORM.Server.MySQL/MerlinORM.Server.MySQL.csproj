@@ -18,8 +18,17 @@
     <RepositoryUrl>https://github.com/Squil11ams/MerlinXX-ORM.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dotnet;reflection;mapping;object-mapper;conversion;exceptions;utilities;framework;database;mysql;orm</PackageTags>
-    <PackageReleaseNotes>
-      ## 2.0.1
+    <PackageReleaseNotes>## 2.0.1
+      ### Fixes
+      - Issue 1, Resolved, Fixed Property Metadata From Overwriting itself and prioritized derived class over base.
+      - Fixed MerlinException not mapping error messages correctly.
+      - Addressed all compiler warnings,
+      ### Added
+      - Documentation for all public api's
+      - Added GetFriendlyName Extension for Type to resolve nullable types cleanly Ie. int? instead of Nullable`1
+      - Replaced all refernces to Type.Name to Type.GetFriendlyName()
+      
+      ## 2.0.0
 
       Merlin 2.0 is a major architectural update focused on consistency, diagnostics, and maintainability.
 

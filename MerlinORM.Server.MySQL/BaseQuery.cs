@@ -7,25 +7,46 @@ using System.Text;
 
 namespace MerlinORM.Server.MySQL
 {
+    /// <summary>
+    /// Provides basic implementation for IMerlinProvider that allows you to extend from. see <see cref="GenericQuery"/> as an example.
+    /// </summary>
     public class BaseQuery : IMerlinProvider
     {
         #region FIELDS
+        /// <summary>
+        /// List of Parameters for Paramertized Query in Generic Form
+        /// </summary>
         public IEnumerable<IDataParameter> Parameters { get { return MyParams; } }
 
+        /// <summary>
+        /// List of MySQL Parameters for Paramertized Query
+        /// </summary>
         public List<MySqlParameter> MyParams { get; protected set; }
 
+        /// <summary>
+        /// SQL Statement to be executed.
+        /// </summary>
         public virtual string Query { get; set; }
         #endregion
 
         #region CONSTRUCTOR
+        /// <summary>
+        /// Builds empty instance
+        /// </summary>
         public BaseQuery()
         {
+            Query = "";
             MyParams = new List<MySqlParameter>();
         }
         #endregion
 
 
         #region PARAMETER MANIPULATIONS
+        /// <summary>
+        /// Creates a new parameter from given key pair
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public void AddParameter(string key, object value)
         {
             MyParams.Add(new MySqlParameter(key, value));
@@ -80,6 +101,12 @@ namespace MerlinORM.Server.MySQL
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Converts Int to Letter ie 1 = A, 2 = B, 27 = AA
+        /// Similar to excel columns
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private static string _IntToLetters(int value)
         {
             string result = string.Empty;
