@@ -37,7 +37,7 @@ Key improvements I'm focused on
 ### Performance
 
 - [x] Metadata caching
-- [ ] Cache SQL column ordinals (avoid repeated `reader["Column"]` lookups)
+- [x] Cache SQL column ordinals per result set (avoid repeated `reader["Column"]` lookups)
 - [ ] Benchmark against Dapper and raw ADO.NET
 - [ ] Reduce allocations during object mapping
 - [ ] Cache compiled converters
@@ -47,10 +47,10 @@ Key improvements I'm focused on
 
 ### Compatibility
 
-- [ ] Native AOT compatibility
+- [x] Source-generated mapping path suitable for Native AOT
 - [ ] Trimming compatibility
 - [ ] PostgreSQL provider
-- [ ] SQL Server provider
+- [x] SQL Server provider
 - [ ] SQLite provider
 
 ---
@@ -91,8 +91,8 @@ Key improvements I'm focused on
 
 - [x] XML documentation
 - [ ] Additional sample projects
-- [ ] SourceLink support
-- [ ] Source generators (optional)
+- [x] SourceLink support
+- [x] Source-generated mappings with recursive, constructor, record, and access-shim support
 - [ ] Roslyn analyzers
 - [ ] Expanded documentation and tutorials
 
@@ -172,6 +172,71 @@ var database = new QueryEngine(configuration, "Default");
 
 The existing `new QueryEngine("Default")` constructor remains supported and
 automatically reads User Secrets associated with the entry application.
+
+## Partial Result Mapping
+
+Queries use strict mapping by default, preserving the original behavior where
+every mapped model property must have a result column. A query can opt into a projection:
+
+```csharp
+var query = new GenericQuery("SELECT CustomerId, Name FROM Customers")
+{
+    MappingStrictness = MappingStrictness.Projection
+};
+```
+
+`MappingStrictness.Validated` ignores missing optional properties but requires
+properties marked with `[MerlinRequired]`:
+
+```csharp
+public class Customer : MerlinModelBase
+{
+    [MerlinRequired]
+    public int CustomerId { get; set; }
+
+    public string? Notes { get; set; }
+}
+```
+
+Nested models retain the existing always-create behavior by default. For outer
+joins, creation can be limited to rows where at least one nested column has a value:
+
+```csharp
+[MerlinObject("client_", NestedObjectCreation.WhenAnyColumnHasValue)]
+public Client? Client { get; set; }
+```
+
+## Mapping Lifecycle Hooks
+
+Models can inspect the current row before ordinal-based population or normalize
+the finished model afterward without overriding the mapping engine:
+
+```csharp
+public class PortalUser : MerlinModelBase
+{
+    public ulong portaluser_id { get; set; }
+    public string portaluser_name { get; set; } = string.Empty;
+
+    protected override AutoPopulateDecision OnBeforeAutoPopulate(
+        in MerlinMappingContext context)
+    {
+        return context.TryGetValue<ulong>("portaluser_id", out var id) && id != 0
+            ? AutoPopulateDecision.Continue
+            : AutoPopulateDecision.Skip;
+    }
+
+    protected override void OnAfterAutoPopulate(
+        in MerlinMappingContext context)
+    {
+        portaluser_name = portaluser_name.Trim();
+    }
+}
+```
+
+`MerlinMappingContext.Data` exposes the current row as `IDataRecord`, while
+`TryGetOrdinal`, `TryGetValue`, and their prefix-aware `TryGetMapped...` variants
+reuse the result set's ordinal table. Returning `Skip` leaves the model unchanged
+for that row and does not invoke the after-population hook.
 
 ---
 
@@ -389,6 +454,50 @@ MerlinORM.MySQL
 ```
 
 The core engine does not depend on a specific database implementation.
+
+## Compile-Time Generated Mappings
+
+`MerlinORM.Client` includes a Roslyn incremental source generator in its NuGet
+package. Visual Studio, `dotnet build`, and CI load it automatically; application
+code and query APIs do not change.
+
+For supported `MerlinModelBase` classes—and classes or records explicitly marked
+with `[MerlinModel]`—the generator emits:
+
+- Static column and required-property descriptors
+- Per-result-set ordinal-plan creation
+- Direct model property assignments
+- Automatic module-level mapper registration
+- Lifecycle-hook metadata
+- Recursive nested plans honoring prefixes and `NestedObjectCreation`
+- Constructor calls for immutable models, init-only properties, and records
+- Partial-model access shims for private or protected mutable setters
+
+At runtime, `RelationalQueryEngine` uses the generated mapper when registered and
+falls back to the cached reflection mapper otherwise. A private or protected setter
+can be generated without reflection when the top-level model is declared `partial`.
+Immutable properties must match an accessible constructor parameter by name and type.
+Unsupported shapes produce warning `MERLINSG001`, explaining why runtime mapping was selected.
+
+Applications that require an entirely generated mapping graph can make fallback a
+compile error:
+
+```xml
+<PropertyGroup>
+  <MerlinRequireGeneratedMappings>true</MerlinRequireGeneratedMappings>
+</PropertyGroup>
+```
+
+This promotes the same explanation to `MERLINSG002`. The NuGet package exposes the
+property to the compiler automatically through its transitive build assets.
+
+The separate project-reference form used during local development is:
+
+```xml
+<ProjectReference Include="..\MerlinORM.Generators\MerlinORM.Generators.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false" />
+```
 
 ---
 
