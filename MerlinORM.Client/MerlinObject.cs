@@ -17,6 +17,9 @@ namespace MerlinORM.Client
         /// </summary>
         public string prefix { get { return _prefix; } }
 
+        /// <summary>Controls whether the nested object is always created or only created for a populated row.</summary>
+        public NestedObjectCreation Creation { get; }
+
         /// <summary>
         /// Marks item as a nested MerlinModel allowing the system to populate that object.
         /// </summary>
@@ -24,6 +27,18 @@ namespace MerlinORM.Client
         public MerlinObject(string prefix = "")
         {
             this._prefix = prefix;
+            Creation = NestedObjectCreation.Always;
+        }
+
+        /// <summary>
+        /// Marks a property as a nested Merlin model and configures when it is instantiated.
+        /// </summary>
+        /// <param name="prefix">Prefix applied to the nested model's column names.</param>
+        /// <param name="creation">Nested object creation policy.</param>
+        public MerlinObject(string prefix, NestedObjectCreation creation)
+        {
+            _prefix = prefix;
+            Creation = creation;
         }
     }
 }

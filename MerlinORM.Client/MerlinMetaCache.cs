@@ -82,7 +82,17 @@ namespace MerlinORM.Client
                 }
             }
 
-            return new MerlinTypeMetadata(mappedProperties);
+            var beforeHook = type.GetMethod(
+                "OnBeforeAutoPopulate",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var afterHook = type.GetMethod(
+                "OnAfterAutoPopulate",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            return new MerlinTypeMetadata(
+                mappedProperties,
+                beforeHook != null && beforeHook.DeclaringType != typeof(MerlinModelBase),
+                afterHook != null && afterHook.DeclaringType != typeof(MerlinModelBase));
         }
 
 
@@ -110,8 +120,10 @@ namespace MerlinORM.Client
                 ColumnName = autoPop?.key ?? prop.Name,
                 PropertyType = prop.PropertyType,
                 ThrowError = autoPop?.throwError ?? true,
+                IsRequired = prop.IsDefined(typeof(MerlinRequired)),
                 DefaultValue = autoPop?.defaultValue,
                 MerlinPrefix = merlinObject?.prefix ?? "",
+                NestedObjectCreation = merlinObject?.Creation ?? NestedObjectCreation.Always,
                 Setter = CreateSetter(prop)
             };
         }

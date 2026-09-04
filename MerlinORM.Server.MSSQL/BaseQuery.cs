@@ -17,6 +17,9 @@ public class BaseQuery : IMerlinProvider
     public virtual string Query { get; set; } = string.Empty;
 
     /// <inheritdoc />
+    public MappingStrictness MappingStrictness { get; set; } = MappingStrictness.Strict;
+
+    /// <inheritdoc />
     public CommandType CommandType { get; protected set; } = CommandType.Text;
 
     /// <summary>Adds a parameter to the query.</summary>

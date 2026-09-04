@@ -27,6 +27,9 @@ namespace MerlinORM.Server.MySQL
         /// SQL Statement to be executed.
         /// </summary>
         public virtual string Query { get; set; }
+
+        /// <inheritdoc />
+        public MappingStrictness MappingStrictness { get; set; } = MappingStrictness.Strict;
         #endregion
 
         #region CONSTRUCTOR

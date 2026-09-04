@@ -38,30 +38,106 @@ namespace MerlinORM.Client
         /// <exception cref="MerlinMissingColumnException"></exception>
         /// <exception cref="MerlinMappingException"></exception>
         /// <exception cref="MerlinException"></exception>
-        public virtual void SetDataObject(IDataReader data, string prefix = "")
+        [Obsolete(
+            "SetDataObject is no longer an override point. " +
+            "Override OnBeforeAutoPopulate or OnAfterAutoPopulate instead.")]
+        public void SetDataObject(IDataReader data, string prefix = "")
         {
-            foreach (var prop in Metadata.MappedProperties.Values)
+            ArgumentNullException.ThrowIfNull(data);
+            var ordinalMap = MerlinOrdinalMap.Build(GetType(), data, MappingStrictness.Strict, prefix);
+            SetDataObject(data, ordinalMap);
+        }
+
+        /// <summary>
+        /// Populates this model using a precomputed result-set ordinal plan.
+        /// </summary>
+        internal void SetDataObject(IDataReader data, MerlinOrdinalMap ordinalMap)
+        {
+            MerlinMappingContext context = default;
+
+            if (ordinalMap.HasBeforeAutoPopulateHook)
             {
-                if (prop.IsMerlinObject)
+                context = new MerlinMappingContext(data, ordinalMap);
+
+                if (OnBeforeAutoPopulate(in context) == AutoPopulateDecision.Skip)
                 {
-                    PopulateNestedObject(data, prop);
+                    return;
+                }
+            }
+
+            foreach (var entry in ordinalMap.Entries)
+            {
+                if (entry.Property.IsMerlinObject)
+                {
+                    PopulateNestedObject(data, entry.Property, entry.NestedMap);
                     continue;
                 }
 
-                var columnName = prefix + prop.ColumnName;
-                object? sourceValue;
-
-                try
-                {
-                    sourceValue = data[columnName];
-                }
-                catch(Exception e)
-                {
-                    throw new MerlinMissingColumnException("MERLIN-MAP-1028", this.GetType().GetFriendlyName(), columnName, e);
-                }
-
-                SetProperty(prop, columnName, sourceValue);
+                SetProperty(entry.Property, entry.ColumnName, data.GetValue(entry.Ordinal));
             }
+
+            if (ordinalMap.HasAfterAutoPopulateHook)
+            {
+                if (!ordinalMap.HasBeforeAutoPopulateHook)
+                {
+                    context = new MerlinMappingContext(data, ordinalMap);
+                }
+
+                OnAfterAutoPopulate(in context);
+            }
+        }
+
+        internal void SetDataObject(
+            IDataReader data,
+            IMerlinGeneratedMapper mapper,
+            MerlinGeneratedMappingPlan mappingPlan)
+        {
+            var plan = (IMerlinMappingPlan)mappingPlan;
+            MerlinMappingContext context = default;
+
+            if (plan.HasBeforeAutoPopulateHook)
+            {
+                context = new MerlinMappingContext(data, plan);
+
+                if (OnBeforeAutoPopulate(in context) == AutoPopulateDecision.Skip)
+                {
+                    return;
+                }
+            }
+
+            mapper.Populate(this, data, mappingPlan);
+
+            if (plan.HasAfterAutoPopulateHook)
+            {
+                if (!plan.HasBeforeAutoPopulateHook)
+                {
+                    context = new MerlinMappingContext(data, plan);
+                }
+
+                OnAfterAutoPopulate(in context);
+            }
+        }
+
+        /// <summary>Applies a generated mapper while preserving model lifecycle hooks.</summary>
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public void ApplyGeneratedMapping(
+            IDataReader data,
+            IMerlinGeneratedMapper mapper,
+            MerlinGeneratedMappingPlan mappingPlan)
+        {
+            SetDataObject(data, mapper, mappingPlan);
+        }
+
+        /// <summary>
+        /// Runs before automatic property population. Return <see cref="AutoPopulateDecision.Skip"/>
+        /// to leave the model unchanged for the current row.
+        /// </summary>
+        protected virtual AutoPopulateDecision OnBeforeAutoPopulate(in MerlinMappingContext context) =>
+            AutoPopulateDecision.Continue;
+
+        /// <summary>Runs after automatic property population completes successfully.</summary>
+        protected virtual void OnAfterAutoPopulate(in MerlinMappingContext context)
+        {
         }
 
         /// <summary>
@@ -149,14 +225,20 @@ namespace MerlinORM.Client
             }
         }
 
-        /// <summary>
-        /// Attempts to load property as a nested MerlinObject
-        /// </summary>
-        /// <param name="data">Data row from database.</param>
-        /// <param name="prop">Property in model being set.</param>
-        /// <exception cref="MerlinException"></exception>
-        private void PopulateNestedObject(IDataReader data, MerlinPropertyMetadata prop)
+        private void PopulateNestedObject(
+            IDataReader data,
+            MerlinPropertyMetadata prop,
+            MerlinOrdinalMap? ordinalMap)
         {
+            if (prop.NestedObjectCreation == NestedObjectCreation.WhenAnyColumnHasValue &&
+                (ordinalMap != null
+                    ? !ordinalMap.HasAnyValue(data)
+                    : !HasAnyNestedValue(data, prop.PropertyType, prop.MerlinPrefix)))
+            {
+                SetNestedProperty(prop, null);
+                return;
+            }
+
             if (prop.MerlinFactory == null)
             {
                 throw new MerlinException("MERLIN-MAP-1031",
@@ -166,19 +248,77 @@ namespace MerlinORM.Client
             var instance = prop.MerlinFactory();
 
             if (instance is not IMerlinObject child)
+            {
                 throw new MerlinException("MERLIN-MAP-1032",
                     $"{prop.PropertyName} is not a valid Merlin object.");
+            }
 
-            child.SetDataObject(data, prop.MerlinPrefix);
+            if (ordinalMap != null && instance is MerlinModelBase model)
+            {
+                model.SetDataObject(data, ordinalMap);
+            }
+            else
+            {
+                child.SetDataObject(data, prop.MerlinPrefix);
+            }
 
             if (prop.Setter == null)
             {
                 throw new MerlinException(
                     "MERLIN-MAP-1037",
-                    $"'{this.GetType().Name}.{prop.PropertyName}' does not have a setter.");
+                    $"'{GetType().Name}.{prop.PropertyName}' does not have a setter.");
             }
 
             prop.Setter(this, instance);
+        }
+
+        private static bool HasAnyNestedValue(IDataReader data, Type modelType, string prefix)
+        {
+            foreach (var property in MerlinMetaCache.Get(modelType).MappedProperties.Values)
+            {
+                if (property.IsMerlinObject)
+                {
+                    if (HasAnyNestedValue(data, property.PropertyType, property.MerlinPrefix))
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                var columnName = prefix + property.ColumnName;
+
+                try
+                {
+                    var value = data[columnName];
+                    if (value != null && value != DBNull.Value)
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    throw new MerlinMissingColumnException(
+                        "MERLIN-MAP-1028",
+                        modelType.GetFriendlyName(),
+                        columnName,
+                        exception);
+                }
+            }
+
+            return false;
+        }
+
+        private void SetNestedProperty(MerlinPropertyMetadata prop, object? value)
+        {
+            if (prop.Setter == null)
+            {
+                throw new MerlinException(
+                    "MERLIN-MAP-1037",
+                    $"'{GetType().Name}.{prop.PropertyName}' does not have a setter.");
+            }
+
+            prop.Setter(this, value);
         }
     }
 }

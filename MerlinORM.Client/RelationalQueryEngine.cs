@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Reflection;
 using System.Runtime.Versioning;
@@ -71,6 +72,69 @@ namespace MerlinORM.Client
         /// <summary>Determines whether an exception originated from the concrete database driver.</summary>
         protected abstract bool IsProviderException(Exception exception);
 
+        private readonly struct ObjectMappingStrategy<T>
+        {
+            private readonly IMerlinGeneratedMapper? _generatedMapper;
+            private readonly MerlinGeneratedMappingPlan? _generatedPlan;
+            private readonly MerlinOrdinalMap? _runtimePlan;
+
+            private ObjectMappingStrategy(
+                IMerlinGeneratedMapper? generatedMapper,
+                MerlinGeneratedMappingPlan? generatedPlan,
+                MerlinOrdinalMap? runtimePlan)
+            {
+                _generatedMapper = generatedMapper;
+                _generatedPlan = generatedPlan;
+                _runtimePlan = runtimePlan;
+            }
+
+            public static ObjectMappingStrategy<T> Create(IDataReader reader, MappingStrictness strictness)
+            {
+                var generatedMapper = MerlinGeneratedMapping<T>.Mapper;
+
+                if (generatedMapper?.CanMap == true)
+                {
+                    return new ObjectMappingStrategy<T>(
+                        generatedMapper,
+                        generatedMapper.CreatePlan(reader, strictness),
+                        null);
+                }
+
+                var runtimePlan = MerlinOrdinalMap.SupportsOrdinalMapping(typeof(T))
+                    ? MerlinOrdinalMap.Build(typeof(T), reader, strictness)
+                    : null;
+
+                return new ObjectMappingStrategy<T>(null, null, runtimePlan);
+            }
+
+            public T CreateAndPopulate(IDataReader reader)
+            {
+                if (_generatedMapper != null && _generatedPlan != null)
+                {
+                    return (T)MerlinGeneratedRuntime.CreateAndPopulate(_generatedMapper, reader, _generatedPlan);
+                }
+
+                if (Activator.CreateInstance(typeof(T)) is not T target)
+                {
+                    throw new InvalidOperationException($"Type '{typeof(T)}' requires a generated mapping or a parameterless constructor.");
+                }
+
+                if (_runtimePlan != null && target is MerlinModelBase runtimeModel)
+                {
+                    runtimeModel.SetDataObject(reader, _runtimePlan);
+                    return target;
+                }
+
+                if (target is IMerlinObject runtimeObject)
+                {
+                    runtimeObject.SetDataObject(reader);
+                    return target;
+                }
+
+                throw new InvalidOperationException($"Type '{typeof(T)}' has neither a generated mapper nor an IMerlinObject runtime mapper.");
+            }
+        }
+
         private T Execute<T>(Func<T> action, string errorCode = "MERLIN-QEP-1000")
         {
             try
@@ -131,7 +195,7 @@ namespace MerlinORM.Client
         /// <exception cref="MerlinException">
         /// Thrown when the query result cannot be mapped to the requested model type.
         /// </exception>
-        public List<T> GetList<T>(IMerlinProvider queryObj) where T : IMerlinObject, new()
+        public List<T> GetList<T>(IMerlinProvider queryObj)
         {
             return Execute(() =>
             {
@@ -141,12 +205,18 @@ namespace MerlinORM.Client
                 using var cmd = CreateCommand(queryObj, conn);
                 using var reader = cmd.ExecuteReader();
 
-                while (reader.Read())
+                if (!reader.Read())
                 {
-                    var temp = new T();
-                    temp.SetDataObject(reader);
-                    data.Add(temp);
+                    return data;
                 }
+
+var mapping = ObjectMappingStrategy<T>.Create(reader, queryObj.MappingStrictness);
+
+                do
+                {
+                    data.Add(mapping.CreateAndPopulate(reader));
+                }
+                while (reader.Read());
 
                 return data;
             }, "MERLIN-QEP-1004");
@@ -178,7 +248,7 @@ namespace MerlinORM.Client
         /// <exception cref="MerlinException">
         /// Thrown when the query result cannot be mapped to the requested model type.
         /// </exception>
-        public async Task<List<T>> GetListAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default) where T : IMerlinObject, new()
+        public async Task<List<T>> GetListAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
         {
             return await ExecuteAsync(async () =>
             {
@@ -188,12 +258,18 @@ namespace MerlinORM.Client
                 await using var cmd = CreateCommand(queryObj, conn);
                 await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
-                while (await reader.ReadAsync(cancellationToken))
+                if (!await reader.ReadAsync(cancellationToken))
                 {
-                    var temp = new T();
-                    temp.SetDataObject(reader);
-                    data.Add(temp);
+                    return data;
                 }
+
+                var mapping = ObjectMappingStrategy<T>.Create(reader, queryObj.MappingStrictness);
+
+                do
+                {
+                    data.Add(mapping.CreateAndPopulate(reader));
+                }
+                while (await reader.ReadAsync(cancellationToken));
 
                 return data;
             }, "MERLIN-QEP-1005").ConfigureAwait(false);
@@ -219,12 +295,10 @@ namespace MerlinORM.Client
         /// <exception cref="MerlinException">
         /// Thrown when the query result cannot be mapped to the requested model type.
         /// </exception>
-        public T? GetObject<T>(IMerlinProvider queryObj) where T : IMerlinObject, new()
+        public T? GetObject<T>(IMerlinProvider queryObj)
         {
             return Execute(() =>
             {
-                T data = new T();
-
                 using var conn = CreateConnection();
                 using var cmd = CreateCommand(queryObj, conn);
                 using var reader = cmd.ExecuteReader();
@@ -234,9 +308,8 @@ namespace MerlinORM.Client
                     return default;
                 }
 
-                data.SetDataObject(reader);
-
-                return data;
+                var mapping = ObjectMappingStrategy<T>.Create(reader, queryObj.MappingStrictness);
+                return mapping.CreateAndPopulate(reader);
             }, "MERLIN-QEP-1006");
         }
 
@@ -265,12 +338,10 @@ namespace MerlinORM.Client
         /// <exception cref="MerlinException">
         /// Thrown when the query result cannot be mapped to the requested model type.
         /// </exception>
-        public async Task<T?> GetObjectAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default) where T : IMerlinObject, new()
+        public async Task<T?> GetObjectAsync<T>(IMerlinProvider queryObj, CancellationToken cancellationToken = default)
         {
             return await ExecuteAsync(async () =>
             {
-                T data = new T();
-
                 await using var conn = await CreateConnectionAsync(cancellationToken);
                 await using var cmd = CreateCommand(queryObj, conn);
                 await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
@@ -280,9 +351,8 @@ namespace MerlinORM.Client
                     return default;
                 }
 
-                data.SetDataObject(reader);
-
-                return data;
+                var mapping = ObjectMappingStrategy<T>.Create(reader, queryObj.MappingStrictness);
+                return mapping.CreateAndPopulate(reader);
             }, "MERLIN-QEP-1007").ConfigureAwait(false);
         }
         #endregion

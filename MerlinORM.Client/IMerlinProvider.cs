@@ -25,5 +25,11 @@ namespace MerlinORM.Client
         /// Existing implementations default to a text command.
         /// </summary>
         CommandType CommandType => CommandType.Text;
+
+        /// <summary>
+        /// Controls how missing result columns are handled. Defaults to strict mapping
+        /// so existing query-provider implementations retain their current behavior.
+        /// </summary>
+        MappingStrictness MappingStrictness => MappingStrictness.Strict;
     }
 }

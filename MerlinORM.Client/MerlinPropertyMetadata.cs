@@ -31,6 +31,11 @@ namespace MerlinORM.Client
         public bool ThrowError { get; init; } = true;
 
         /// <summary>
+        /// Whether this property must exist when validated mapping is requested.
+        /// </summary>
+        public bool IsRequired { get; init; }
+
+        /// <summary>
         /// Indicates property is actually another merlin model, applies different logic to set.
         /// </summary>
         public bool IsMerlinObject { get; private set; }
@@ -39,6 +44,9 @@ namespace MerlinORM.Client
         /// Prefix to apply to all properties within the merlin object. Empty if IsMerlinObject = false.
         /// </summary>
         public string MerlinPrefix { get; init; } = string.Empty;
+
+        /// <summary>Controls when a nested Merlin object is instantiated.</summary>
+        public NestedObjectCreation NestedObjectCreation { get; init; } = NestedObjectCreation.Always;
 
         /// <summary>
         /// Factory used to create MerlinObject
