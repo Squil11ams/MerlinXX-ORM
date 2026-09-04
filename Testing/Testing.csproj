@@ -7,12 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <CompilerVisibleProperty Include="MerlinRequireGeneratedMappings" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
     <PackageReference Include="MySqlConnector" Version="2.6.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MerlinORM.Generators\MerlinORM.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\MerlinORM.Client\MerlinORM.Client.csproj" />
     <ProjectReference Include="..\MerlinORM.Server.MySQL\MerlinORM.Server.MySQL.csproj" />
     <ProjectReference Include="..\MerlinORM.Server.MSSQL\MerlinORM.Server.MSSQL.csproj" />
