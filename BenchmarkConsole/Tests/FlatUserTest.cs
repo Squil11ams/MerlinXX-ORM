@@ -33,7 +33,7 @@ namespace BenchmarkConsole.Tests
         {
             var q = new GenericQuery("SELECT * FROM `merlin_bench`.`users`;");
 
-            var data = await DB.GetListAsync2<User>(q);
+            var data = await DB.GetListAsync<User>(q);
 
             return data.Count;
         }

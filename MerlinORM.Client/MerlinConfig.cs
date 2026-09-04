@@ -1,8 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Configuration;
 
 namespace MerlinORM.Client
 {
@@ -10,13 +12,12 @@ namespace MerlinORM.Client
     /// Handles the configuration logic for Merlin.
     /// Peforms Read/Write function on the config file.
     /// </summary>using System.Runtime.Versioning;
-    [SupportedOSPlatform("windows")]
     public static class MerlinConfig
     {
         /// <summary>
         /// Caches decrypted connection strings to avoid repeated decryption operations for the same key.
         /// </summary>
-        private static readonly ConcurrentDictionary<string, string> _cached = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _cached = new();
 
         /// <summary>
         /// Default placeholder value used in the configuration file to indicate that a connection string has not yet been provided.
@@ -43,22 +44,32 @@ namespace MerlinORM.Client
         /// <exception cref="InvalidOperationException"></exception>
         public static string GetConnectionString(string TargetKey, string appSettingsPath = "appsettings.json")
         {
-            if (_cached.TryGetValue(TargetKey, out var cachedValue))
+            ArgumentException.ThrowIfNullOrWhiteSpace(TargetKey);
+
+            var file = ProcessFilePath(appSettingsPath);
+            var cacheKey = $"{file}|{TargetKey}";
+
+            if (_cached.TryGetValue(cacheKey, out var cachedValue))
             {
                 return cachedValue;
             }
 
-            // 1. Get Full Path to appsettings.json
-            var file = ProcessFilePath(appSettingsPath);
-
             lock (_configLock)
             {
-                if (_cached.TryGetValue(TargetKey, out var cachedValue2))
+                if (_cached.TryGetValue(cacheKey, out var cachedValue2))
                 {
                     return cachedValue2;
                 }
 
-                // 2. Load the JSON configuration file
+                var externalValue = GetExternalConnectionString(TargetKey);
+                if (!string.IsNullOrWhiteSpace(externalValue))
+                {
+                    var resolvedValue = ResolveValue(externalValue);
+                    _cached[cacheKey] = resolvedValue;
+                    return resolvedValue;
+                }
+
+                // Fall back to the original appsettings.json behavior for compatibility.
                 var rootNode = LoadRoot(file);
 
                 // 3. Load the ConnectionStrings section (create if it doesn't exist)
@@ -74,29 +85,85 @@ namespace MerlinORM.Client
                 // 6. Check if string starts with the encrypted prefix. If not, encrypt it and save back to the file.
                 if (!rawValue.StartsWith(EncryptedPrefix))
                 {
-                    string encryptedValue = EncryptString(rawValue);
-                    connStringsSection[TargetKey] = $"{EncryptedPrefix}{encryptedValue}";
-                    SaveJson(rootNode, file);
+                    if (OperatingSystem.IsWindows())
+                    {
+                        string encryptedValue = EncryptString(rawValue);
+                        connStringsSection[TargetKey] = $"{EncryptedPrefix}{encryptedValue}";
+                        SaveJson(rootNode, file);
+                    }
 
-                    _cached[TargetKey] = rawValue;
+                    _cached[cacheKey] = rawValue;
 
                     return rawValue; // Return plain text for immediate use on this initial run
                 }
                 else
                 {
-                    try
-                    {
-                        string base64Cipher = rawValue.Substring(EncryptedPrefix.Length);
-                        var decrypted = DecryptString(base64Cipher);
-
-                        _cached[TargetKey] = decrypted;
-                        return decrypted;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new MerlinException("MERLIN-CFG-1026", ex);
-                    }
+                    var decrypted = ResolveValue(rawValue);
+                    _cached[cacheKey] = decrypted;
+                    return decrypted;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Resolves a connection string from an application's existing configuration.
+        /// </summary>
+        /// <param name="configuration">The application's configuration root.</param>
+        /// <param name="targetKey">The key within the ConnectionStrings section.</param>
+        /// <returns>The resolved plain-text connection string.</returns>
+        public static string GetConnectionString(IConfiguration configuration, string targetKey)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentException.ThrowIfNullOrWhiteSpace(targetKey);
+
+            var rawValue = configuration.GetConnectionString(targetKey);
+            if (string.IsNullOrWhiteSpace(rawValue) || rawValue == PlaceholderValue)
+            {
+                throw new MerlinException(
+                    "MERLIN-CFG-1027",
+                    $"The connection string key '{targetKey}' was missing from the supplied configuration.");
+            }
+
+            return ResolveValue(rawValue);
+        }
+
+        private static string? GetExternalConnectionString(string targetKey)
+        {
+            var builder = new ConfigurationBuilder();
+            var entryAssembly = Assembly.GetEntryAssembly();
+
+            if (entryAssembly != null)
+            {
+                builder.AddUserSecrets(entryAssembly, optional: true);
+            }
+
+            // Environment variables follow standard .NET precedence and override secrets.
+            builder.AddEnvironmentVariables();
+
+            return builder.Build().GetConnectionString(targetKey);
+        }
+
+        private static string ResolveValue(string rawValue)
+        {
+            if (!rawValue.StartsWith(EncryptedPrefix, StringComparison.Ordinal))
+            {
+                return rawValue;
+            }
+
+            try
+            {
+                if (!OperatingSystem.IsWindows())
+                {
+                    throw new PlatformNotSupportedException(
+                        "DPAPI-encrypted Merlin connection strings can only be decrypted on Windows. " +
+                        "Use User Secrets, environment variables, or IConfiguration on this platform.");
+                }
+
+                return DecryptString(rawValue[EncryptedPrefix.Length..]);
+            }
+            catch (Exception ex)
+            {
+                throw new MerlinException("MERLIN-CFG-1026", ex);
             }
         }
 
@@ -166,6 +233,7 @@ namespace MerlinORM.Client
         /// </summary>
         /// <param name="plainText"></param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         private static string EncryptString(string plainText)
         {
             byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
@@ -178,6 +246,7 @@ namespace MerlinORM.Client
         /// </summary>
         /// <param name="base64Cipher"></param>
         /// <returns></returns>
+        [SupportedOSPlatform("windows")]
         private static string DecryptString(string base64Cipher)
         {
             byte[] cipherBytes = Convert.FromBase64String(base64Cipher);

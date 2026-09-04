@@ -1,12 +1,12 @@
 using System.Data.Common;
 using MerlinORM.Client;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using MySqlConnector;
 
-namespace MerlinORM.Server.MySQL;
+namespace MerlinORM.Server.MSSQL;
 
 /// <summary>
-/// Executes Merlin queries through MySQL while reusing the shared relational mapping engine.
+/// Executes Merlin queries through Microsoft SQL Server while reusing the shared relational mapping engine.
 /// </summary>
 public class QueryEngine : RelationalQueryEngine
 {
@@ -25,7 +25,7 @@ public class QueryEngine : RelationalQueryEngine
     /// <inheritdoc />
     protected override DbConnection CreateConnection()
     {
-        var connection = new MySqlConnection(ConnectionString);
+        var connection = new SqlConnection(ConnectionString);
         connection.Open();
         return connection;
     }
@@ -33,7 +33,7 @@ public class QueryEngine : RelationalQueryEngine
     /// <inheritdoc />
     protected override async Task<DbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
     {
-        var connection = new MySqlConnection(ConnectionString);
+        var connection = new SqlConnection(ConnectionString);
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         return connection;
     }
@@ -41,8 +41,10 @@ public class QueryEngine : RelationalQueryEngine
     /// <inheritdoc />
     protected override DbCommand CreateCommand(IMerlinProvider provider, DbConnection connection, bool autoParams = true)
     {
-        var command = new MySqlCommand(provider.Query, (MySqlConnection)connection);
-        command.CommandType = provider.CommandType;
+        var command = new SqlCommand(provider.Query, (SqlConnection)connection)
+        {
+            CommandType = provider.CommandType
+        };
 
         if (autoParams)
         {
@@ -56,5 +58,5 @@ public class QueryEngine : RelationalQueryEngine
     }
 
     /// <inheritdoc />
-    protected override bool IsProviderException(Exception exception) => exception is MySqlException;
+    protected override bool IsProviderException(Exception exception) => exception is SqlException;
 }

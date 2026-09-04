@@ -19,5 +19,11 @@ namespace MerlinORM.Client
         /// List of parameters to be used with the query, allowing for parameterized queries and preventing SQL injection.
         /// </summary>
         IEnumerable<IDataParameter> Parameters { get; }
+
+        /// <summary>
+        /// Specifies how the provider should interpret <see cref="Query"/>.
+        /// Existing implementations default to a text command.
+        /// </summary>
+        CommandType CommandType => CommandType.Text;
     }
 }

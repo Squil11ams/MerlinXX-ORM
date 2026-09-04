@@ -160,6 +160,19 @@ MerlinORM uses three primary components:
 2. A configured database provider
 3. A query execution request
 
+Connection strings can be supplied through `appsettings.json`, .NET User Secrets,
+or environment variables. Standard .NET precedence applies: environment variables
+override User Secrets, and User Secrets override the legacy JSON-file fallback.
+
+Applications that already build an `IConfiguration` instance can pass it directly:
+
+```csharp
+var database = new QueryEngine(configuration, "Default");
+```
+
+The existing `new QueryEngine("Default")` constructor remains supported and
+automatically reads User Secrets associated with the entry application.
+
 ---
 
 # Creating a Model
@@ -349,6 +362,7 @@ This allows database providers to be added without modifying the core library.
 | Provider | Package         |
 | -------- | --------------- |
 | MySQL    | MerlinORM.MySQL |
+| SQL Server | MerlinORM.Server.MSSQL |
 
 Additional providers can be implemented using the Merlin provider architecture.
 
